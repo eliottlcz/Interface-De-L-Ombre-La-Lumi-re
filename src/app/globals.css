@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource-variable/instrument-sans/index.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+
+/*
+ * Charte « De l'Ombre à la Lumière » — relevée sur les visuels officiels :
+ * noir #000, or #DFC662, crème #F5F4F0, gris #8F8A80, rayure sombre #1B180C, olive #594F27.
+ * Titres : grotesque très large et grasse en capitales (Archivo, largeur 125, graisse 800).
+ * Texte : Instrument Sans. Citations : Instrument Serif italique.
+ */
+@theme {
+  --color-ink: #000000;
+  --color-night: #0a0907;
+  --color-panel: #12110d;
+  --color-panel-2: #1a1812;
+  --color-stripe: #1b180c;
+  --color-line: #2a2720;
+  --color-line-strong: #3a362b;
+  --color-muted: #8f8a80;
+  --color-soft: #bdb8ad;
+  --color-cream: #f5f4f0;
+  --color-gold: #dfc662;
+  --color-gold-deep: #a79449;
+  --color-olive: #594f27;
+  --color-alert: #e2725b;
+  --color-ok: #b9c97a;
+
+  --font-display: "Archivo Variable", "Archivo", system-ui, sans-serif;
+  --font-sans: "Instrument Sans Variable", "Instrument Sans", system-ui, -apple-system, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+
+  --radius-card: 14px;
+}
+
+:root { color-scheme: dark; }
+
+html, body { background: var(--color-ink); color: var(--color-cream); }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+
+/* Titre de marque : capitales larges et grasses */
+.display {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  line-height: 0.95;
+}
+.display-tight { font-family: var(--font-display); font-variation-settings: "wdth" 125; font-weight: 800; text-transform: uppercase; }
+.eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-muted); font-weight: 600; }
+.quote { font-family: var(--font-serif); font-style: italic; }
+
+/* Étiquette dorée, comme « ÉP. 01 » / « LES COULISSES » */
+.tag-gold {
+  display: inline-flex; align-items: center; background: var(--color-gold); color: #000;
+  font-family: var(--font-display); font-variation-settings: "wdth" 125; font-weight: 800;
+  text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; padding: 3px 8px; line-height: 1.2;
+}
+
+/* Halo de lumière (projecteur) des visuels */
+.spotlight { background: radial-gradient(60% 50% at 70% 0%, rgba(223, 198, 98, 0.16), transparent 70%), var(--color-ink); }
+.glow-card { background: radial-gradient(120% 120% at 100% 0%, rgba(223, 198, 98, 0.09), transparent 55%), var(--color-panel); }
+
+/* Diagonale dorée de la bannière */
+.stripe-diagonal { position: relative; overflow: hidden; }
+.stripe-diagonal::before, .stripe-diagonal::after {
+  content: ""; position: absolute; top: -20%; height: 140%; transform: skewX(-12deg); pointer-events: none;
+}
+.stripe-diagonal::before { right: 18%; width: 22px; background: var(--color-gold); opacity: 0.9; }
+.stripe-diagonal::after { right: calc(18% - 16px); width: 3px; background: var(--color-olive); }
+
+.card { background: var(--color-panel); border: 1px solid var(--color-line); border-radius: var(--radius-card); }
+
+/* Barres de défilement discrètes */
+* { scrollbar-width: thin; scrollbar-color: #3a362b transparent; }
+
+/* Cibles tactiles confortables sur iPad */
+@media (pointer: coarse) {
+  .touch-lg { min-height: 44px; }
+}
+
+input, select, textarea { font-size: 15px; }
+input[type="date"], input[type="time"], input[type="datetime-local"] { color-scheme: dark; }
+
+@keyframes fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.animate-in { animation: fade-up 0.25s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .animate-in { animation: none; } }
+
+:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
