@@ -13,11 +13,11 @@ export type ContentView = {
 };
 const statusTone = (s: ContentView["status"]) => (s === "publie" ? "ok" : s === "programme" ? "gold" : s === "a_valider" ? "alert" : s === "en_montage" ? "olive" : "neutral");
 
-export function ContentsList({ items, users, episodes, canEdit, episodeId, showEpisode }: {
-  items: ContentView[]; users: { id: string; label: string }[]; episodes?: { id: string; label: string }[]; canEdit: boolean; episodeId?: string; showEpisode?: boolean;
+export function ContentsList({ items, users, episodes, canEdit, episodeId, showEpisode, startNew }: {
+  items: ContentView[]; users: { id: string; label: string }[]; episodes?: { id: string; label: string }[]; canEdit: boolean; episodeId?: string; showEpisode?: boolean; startNew?: boolean;
 }) {
   const { exec } = useAction();
-  const [edit, setEdit] = useState<ContentView | "new" | null>(null);
+  const [edit, setEdit] = useState<ContentView | "new" | null>(startNew && canEdit ? "new" : null);
   const today = todayISO();
   return (
     <div>

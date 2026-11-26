@@ -211,3 +211,11 @@ export async function deleteContent(id: string) {
   });
 }
 
+
+export async function moveContentDate(id: string, date: string) {
+  return run(async () => {
+    await assertPermission("production.modifier");
+    await db.update(s.contents).set({ plannedDate: z.iso.date().parse(date), updatedAt: new Date() }).where(eq(s.contents.id, id));
+    return { ok: true as const, message: "Publication déplacée" };
+  });
+}
