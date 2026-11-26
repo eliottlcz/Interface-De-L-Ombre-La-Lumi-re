@@ -11,7 +11,7 @@ export { clsx as cx };
 type BtnVariant = "gold" | "ghost" | "outline" | "danger" | "cream";
 const btnBase = "touch-lg inline-flex items-center justify-center gap-2 rounded-full px-4 h-10 text-sm font-semibold transition disabled:opacity-50 disabled:pointer-events-none select-none whitespace-nowrap";
 const btnVariants: Record<BtnVariant, string> = {
-  gold: "bg-gold text-black hover:bg-[#e8d27a] active:scale-[0.98]",
+  gold: "btn-light bg-gold text-black hover:bg-[#e8d27a] active:scale-[0.98]",
   cream: "bg-cream text-black hover:bg-white active:scale-[0.98]",
   ghost: "text-soft hover:text-cream hover:bg-panel-2",
   outline: "border border-line-strong text-cream hover:border-gold hover:text-gold",
@@ -20,7 +20,7 @@ const btnVariants: Record<BtnVariant, string> = {
 export const Button = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: BtnVariant; size?: "sm" | "md"; loading?: boolean }>(
   function Button({ variant = "outline", size = "md", loading, className, children, ...rest }, ref) {
     return (
-      <button ref={ref} {...rest} disabled={rest.disabled || loading}
+      <button ref={ref} {...rest} disabled={rest.disabled || loading} aria-busy={loading || undefined}
         className={clsx(btnBase, btnVariants[variant], size === "sm" && "h-8 px-3 text-xs", className)}>
         {loading && <Loader2 className="size-4 animate-spin" />}
         {children}
@@ -87,7 +87,7 @@ export function Badge({ tone = "neutral", children, className }: { tone?: "neutr
   return <span className={clsx("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap", tones[tone], className)}>{children}</span>;
 }
 export function Card({ className, children, ...p }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...p} className={clsx("card", className)}>{children}</div>;
+  return <div {...p} className={clsx("card lightable", className)}>{children}</div>;
 }
 export function SectionTitle({ eyebrow, title, action, className }: { eyebrow?: string; title: React.ReactNode; action?: React.ReactNode; className?: string }) {
   return (
@@ -102,7 +102,7 @@ export function SectionTitle({ eyebrow, title, action, className }: { eyebrow?: 
 }
 export function PageHeader({ eyebrow, title, description, actions }: { eyebrow?: string; title: string; description?: React.ReactNode; actions?: React.ReactNode }) {
   return (
-    <header className="mb-8 flex flex-wrap items-end justify-between gap-4 animate-in">
+    <header className="mb-8 flex flex-wrap items-end justify-between gap-4 lights-up">
       <div className="max-w-3xl">
         {eyebrow && <div className="tag-gold mb-3">{eyebrow}</div>}
         <h1 className="display text-3xl md:text-[40px]">{title}</h1>

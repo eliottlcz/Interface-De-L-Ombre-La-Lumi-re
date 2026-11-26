@@ -50,11 +50,11 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
 
 export function SyncDot() {
   const s = useSyncStatus();
-  const label = s === "connecte" ? "Synchronisé en temps réel" : s === "connexion" ? "Connexion…" : "Synchronisation de secours (30 s)";
+  const label = s === "connecte" ? "À l’antenne : synchronisé en temps réel avec les autres appareils" : s === "connexion" ? "Réglage du signal…" : "Liaison de secours : actualisation toutes les 30 s";
   return (
     <span title={label} className="inline-flex items-center gap-1.5 text-[11px] text-muted">
       <span className={`size-2 rounded-full ${s === "connecte" ? "bg-ok" : s === "connexion" ? "bg-muted animate-pulse" : "bg-gold"}`} />
-      <span className="hidden xl:inline">{s === "connecte" ? "En direct" : s === "connexion" ? "Connexion" : "Secours"}</span>
+      <span className="hidden xl:inline">{s === "connecte" ? "À l’antenne" : s === "connexion" ? "Réglage…" : "Liaison de secours"}</span>
     </span>
   );
 }

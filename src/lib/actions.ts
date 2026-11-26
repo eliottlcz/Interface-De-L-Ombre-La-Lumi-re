@@ -5,11 +5,9 @@ import { AuthError } from "@/lib/auth/session";
 export type ActionResult<T = undefined> = { ok: true; data?: T; message?: string } | { ok: false; error: string };
 
 /** Enveloppe une action serveur : transforme les erreurs connues en message lisible. */
-export async function run<T>(fn: () => Promise<T | ActionResult<T>>): Promise<ActionResult<T>> {
+export async function run<R extends { ok: true; data?: unknown; message?: string }>(fn: () => Promise<R>): Promise<R | { ok: false; error: string }> {
   try {
-    const r = await fn();
-    if (r && typeof r === "object" && "ok" in (r as object)) return r as ActionResult<T>;
-    return { ok: true, data: r as T };
+    return await fn();
   } catch (e) {
     if (e instanceof AuthError) return { ok: false, error: e.message };
     if (e instanceof ZodError) return { ok: false, error: e.issues.map((i) => i.message).join(" · ") };

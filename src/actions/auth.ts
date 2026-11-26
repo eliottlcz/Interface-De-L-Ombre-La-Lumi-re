@@ -35,7 +35,7 @@ export async function loginAction(_: FormState, form: FormData): Promise<FormSta
   const ok = user?.passwordHash ? await verifyPassword(user.passwordHash, password) : false;
   if (!user || !ok || !user.active) {
     await db.insert(schema.loginEvents).values({ email, userId: user?.id, success: false, ip, userAgent, reason: !user ? "inconnu" : !user.active ? "desactive" : "mot_de_passe" });
-    return { error: "Identifiants incorrects." };
+    return { error: "Identifiants incorrects — la porte du QG reste fermée." };
   }
   await db.insert(schema.loginEvents).values({ email, userId: user.id, success: true, ip, userAgent });
   await db.update(schema.users).set({ lastLoginAt: new Date() }).where(eq(schema.users.id, user.id));
@@ -48,7 +48,7 @@ export async function logoutAction() {
   const u = await getCurrentUser();
   await destroySession();
   if (u) await audit({ userId: u.id, action: "auth.deconnexion", summary: `${u.name} s'est déconnecté(e)` });
-  redirect("/connexion");
+  redirect("/connexion?fin=1");
 }
 
 /** Demande de réinitialisation : réponse identique que le compte existe ou non. */
