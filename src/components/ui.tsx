@@ -43,7 +43,7 @@ export function IconButton({ label, className, children, ...rest }: React.Button
 }
 
 /* ───────── Champs ───────── */
-const fieldBase = "w-full rounded-lg border border-line bg-night px-3 h-10 text-cream placeholder:text-muted/70 focus:border-gold focus:outline-none transition";
+const fieldBase = "w-full rounded-lg border border-line bg-night px-3 h-10 text-cream placeholder:text-muted/70 focus:border-gold focus:outline-none focus-visible:outline-none transition";
 export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...p }, ref) {
   return <input ref={ref} {...p} className={clsx(fieldBase, className)} />;
 });
