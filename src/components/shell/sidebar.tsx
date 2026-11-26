@@ -44,7 +44,7 @@ export function Sidebar({ permissions, urgentCount, open, onClose }: { permissio
         </nav>
         <div className="mx-5 mb-5 border-t border-line pt-4">
           <Image src="/brand/logo-inline.png" alt="" width={180} height={14} className="opacity-60" />
-          <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-muted/70">Coulisses · réservé à l&apos;équipe</p>
+          <p className="mt-2 whitespace-nowrap text-[9px] uppercase tracking-[0.16em] text-muted/70">Coulisses · réservé à l&apos;équipe</p>
         </div>
       </aside>
     </>

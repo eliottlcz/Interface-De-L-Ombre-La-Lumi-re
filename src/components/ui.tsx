@@ -91,7 +91,7 @@ export function Card({ className, children, ...p }: React.HTMLAttributes<HTMLDiv
 }
 export function SectionTitle({ eyebrow, title, action, className }: { eyebrow?: string; title: React.ReactNode; action?: React.ReactNode; className?: string }) {
   return (
-    <div className={clsx("flex items-end justify-between gap-4 mb-3", className)}>
+    <div className={clsx("mb-3 flex flex-wrap items-end justify-between gap-x-4 gap-y-2", className)}>
       <div>
         {eyebrow && <div className="eyebrow mb-1">{eyebrow}</div>}
         <h2 className="display text-[15px] tracking-wide">{title}</h2>

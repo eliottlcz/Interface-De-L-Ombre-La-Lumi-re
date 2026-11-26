@@ -1,6 +1,6 @@
 "use client";
 import { DndContext, PointerSensor, TouchSensor, KeyboardSensor, useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent, DragOverlay } from "@dnd-kit/core";
-import { useState } from "react";
+import { useId, useState } from "react";
 import clsx from "clsx";
 
 export type KanbanColumn = { id: string; label: string; accent?: boolean };
@@ -22,6 +22,7 @@ export function Kanban<T extends KanbanItem>({ columns, items, renderCard, onMov
     useSensor(KeyboardSensor),
   );
   const [active, setActive] = useState<string | null>(null);
+  const dndId = useId();
   const onEnd = (e: DragEndEvent) => {
     setActive(null);
     const to = e.over?.id as string | undefined;
@@ -30,7 +31,7 @@ export function Kanban<T extends KanbanItem>({ columns, items, renderCard, onMov
   };
   const activeItem = items.find((i) => i.id === active);
   return (
-    <DndContext sensors={sensors} onDragStart={(e) => setActive(String(e.active.id))} onDragEnd={onEnd} onDragCancel={() => setActive(null)}>
+    <DndContext id={dndId} sensors={sensors} onDragStart={(e) => setActive(String(e.active.id))} onDragEnd={onEnd} onDragCancel={() => setActive(null)}>
       <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4 md:mx-0 md:px-0">
         {columns.map((c) => {
           const list = items.filter((i) => i.column === c.id);

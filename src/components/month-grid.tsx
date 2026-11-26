@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useDroppable, useDraggable, DndContext, PointerSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
@@ -35,6 +35,7 @@ export function MonthGrid({ month, onMonth, items, onItem, onDay, onMove, header
   onDay?: (date: string) => void; onMove?: (id: string, date: string) => void; header?: React.ReactNode;
 }) {
   const cells = useMemo(() => monthCells(month), [month]);
+  const dndId = useId();
   const today = todayISO();
   const [selected, setSelected] = useState<string>(today.startsWith(month) ? today : `${month}-01`);
   const byDay = useMemo(() => {
@@ -57,7 +58,7 @@ export function MonthGrid({ month, onMonth, items, onItem, onDay, onMove, header
       </div>
 
       {/* Grille complète (tablette / ordinateur) */}
-      <DndContext sensors={sensors} onDragEnd={onEnd}>
+      <DndContext id={dndId} sensors={sensors} onDragEnd={onEnd}>
         <div className="hidden overflow-hidden rounded-[14px] border border-line md:block">
           <div className="grid grid-cols-7 border-b border-line bg-panel">
             {WEEKDAYS.map((d) => <div key={d} className="px-2 py-2 text-center text-[11px] font-semibold uppercase tracking-wider text-muted">{d}</div>)}
