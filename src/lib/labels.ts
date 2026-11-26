@@ -92,8 +92,8 @@ export type PlatformKey = keyof typeof PLATFORMS;
 export const PLATFORM_METRICS: Record<PlatformKey, { key: string; label: string; api: boolean }[]> = {
   youtube: [
     { key: "abonnes", label: "Abonnés", api: true }, { key: "vues", label: "Vues cumulées", api: true },
-    { key: "videos", label: "Vidéos publiées", api: true }, { key: "heures_visionnage", label: "Heures de visionnage", api: true },
-    { key: "duree_moyenne_s", label: "Durée moyenne de visionnage (s)", api: true },
+    { key: "videos", label: "Vidéos publiées", api: true }, { key: "heures_visionnage", label: "Heures de visionnage (28 j)", api: true },
+    { key: "duree_moyenne_s", label: "Durée moyenne de visionnage (s, 28 j)", api: true },
     { key: "ctr_miniatures", label: "Taux de clics des miniatures (%)", api: false },
   ],
   instagram: [
