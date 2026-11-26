@@ -6,22 +6,9 @@ import type { CurrentUser } from "@/lib/auth/session";
 import { addDaysISO, todayISO, diffDaysISO, utcToParis } from "@/lib/dates";
 import { CONTENT_KIND, EPISODE_STAGE, GUEST_DOC_KIND, GUEST_DOC_STATUS, PRIORITY } from "@/lib/labels";
 
-export type ReminderKind =
-  | "a_contacter" | "relance" | "reponse_attente" | "tournage" | "preparation" | "montage"
-  | "validation" | "publication" | "autorisation" | "tache_retard" | "tache_echeance" | "finance";
-
-export const REMINDER_LABEL: Record<ReminderKind, string> = {
-  a_contacter: "Invités à contacter", relance: "Relances", reponse_attente: "Réponses en attente",
-  tournage: "Tournages à venir", preparation: "Préparations incomplètes", montage: "Montages en attente",
-  validation: "À valider", publication: "Publications à programmer", autorisation: "Autorisations manquantes",
-  tache_retard: "Tâches en retard", tache_echeance: "Échéances de tâches", finance: "Échéances financières",
-};
-
-export type Urgency = "retard" | "aujourdhui" | "semaine" | "plus_tard" | "sans_date";
-export type Reminder = {
-  key: string; kind: ReminderKind; title: string; detail?: string; date: string | null;
-  ownerId: string | null; href: string; urgency: Urgency;
-};
+import { REMINDER_LABEL as _RL, type Reminder, type Urgency, type ReminderKind } from "@/lib/reminder-labels";
+export const REMINDER_LABEL = _RL;
+export type { Reminder, Urgency, ReminderKind };
 
 function urgencyOf(date: string | null, today: string): Urgency {
   if (!date) return "sans_date";

@@ -29,7 +29,7 @@ export function TaskCard({ t, onOpen, canEdit, compact }: { t: TaskView; onOpen:
         </span>
         <button onClick={onOpen} className="min-w-0 flex-1 text-left">
           <div className={clsx("text-[14px] font-medium leading-snug", t.status === "termine" && "text-muted line-through")}>{t.title}</div>
-          {!compact && (t.episodeTitle || t.contactName) && <div className="mt-0.5 truncate text-xs text-muted">{[t.episodeTitle, t.contactName].filter(Boolean).join(" · ")}</div>}
+          {!compact && (t.episodeTitle || t.contactName) && <div className="mt-0.5 truncate text-xs text-muted">{[...new Set([t.episodeTitle, t.contactName].filter(Boolean))].join(" · ")}</div>}
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <Badge tone={priorityTone(t.priority)}>{PRIORITY[t.priority]}</Badge>
             {t.status !== "a_faire" && t.status !== "termine" && <Badge tone="olive">{TASK_STATUS[t.status]}</Badge>}

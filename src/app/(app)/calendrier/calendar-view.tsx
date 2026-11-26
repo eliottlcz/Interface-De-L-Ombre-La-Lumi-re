@@ -54,11 +54,11 @@ export function CalendarView({ items, anchor, users, contacts, episodes, tasks, 
         <Segmented value={mode} onChange={(v) => setParam("vue", v)} items={[{ value: "mois", label: "Mois" }, { value: "semaine", label: "Semaine" }, { value: "jour", label: "Jour" }]} />
         <Select value={who} onChange={(e) => setWho(e.target.value)} className="h-9 w-auto text-sm" aria-label="Responsable"><option value="">Toute l&apos;équipe</option>{users.map((u) => <option key={u.id} value={u.id}>{u.label}</option>)}</Select>
       </div>
-      <div className="mb-5 flex flex-wrap gap-1.5">
+      <div className="-mx-4 mb-5 flex gap-1.5 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
         {(Object.keys(EVENT_TYPE) as (keyof typeof EVENT_TYPE)[]).map((t) => {
           const on = types.includes(t);
           return <button key={t} onClick={() => setTypes(on ? types.filter((x) => x !== t) : [...types, t])}
-            className={cx("touch-lg inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition", on ? "border-gold text-cream" : "border-line text-muted hover:text-cream")}>
+            className={cx("touch-lg inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition", on ? "border-gold text-cream" : "border-line text-muted hover:text-cream")}>
             <span className="h-2.5 w-[3px] -skew-x-12" style={{ background: EVENT_COLOR[t] }} />{EVENT_TYPE[t]}</button>;
         })}
         {types.length > 0 && <button onClick={() => setTypes([])} className="px-2 text-[11px] text-gold">Tout afficher</button>}

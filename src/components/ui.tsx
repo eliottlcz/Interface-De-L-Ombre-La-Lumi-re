@@ -1,5 +1,8 @@
 "use client";
-import clsx from "clsx";
+import clsxBase, { type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+/** clsx + fusion des classes Tailwind (une classe passée en prop remplace celle par défaut). */
+const clsx = (...a: ClassValue[]) => twMerge(clsxBase(a));
 import Link from "next/link";
 import { createContext, forwardRef, useCallback, useContext, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -102,11 +105,11 @@ export function SectionTitle({ eyebrow, title, action, className }: { eyebrow?: 
 }
 export function PageHeader({ eyebrow, title, description, actions }: { eyebrow?: string; title: string; description?: React.ReactNode; actions?: React.ReactNode }) {
   return (
-    <header className="mb-8 flex flex-wrap items-end justify-between gap-4 lights-up">
+    <header className="mb-6 flex flex-wrap items-end justify-between gap-4 lights-up md:mb-8">
       <div className="max-w-3xl">
         {eyebrow && <div className="tag-gold mb-3">{eyebrow}</div>}
-        <h1 className="display text-3xl md:text-[40px]">{title}</h1>
-        {description && <p className="mt-3 text-soft text-[15px] leading-relaxed">{description}</p>}
+        <h1 className="display text-[26px] sm:text-3xl md:text-[40px]">{title}</h1>
+        {description && <p className="mt-3 text-[14px] leading-relaxed text-soft md:text-[15px]">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </header>
