@@ -75,7 +75,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
     <div className="flex flex-col gap-8">
       {refus && <div className="rounded-xl border border-alert/40 bg-alert/10 px-4 py-3 text-sm">Cette rubrique n&apos;est pas ouverte à votre profil. Un administrateur peut ajuster vos permissions.</div>}
 
-      <section className="relative overflow-hidden rounded-[20px] border border-line spotlight stripe-diagonal px-6 py-8 md:px-10 md:py-10 lights-up">
+      <section className="relative overflow-hidden rounded-[20px] border border-line spotlight px-6 py-8 md:stripe-diagonal md:px-10 md:py-10 lights-up">
         <div className="relative z-10 max-w-3xl">
           <div className="eyebrow mb-3">{new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long" }).format(new Date())}</div>
           <h1 className="display text-[28px] md:text-5xl">{greeting()}, <span className="text-gold">{first}</span></h1>
