@@ -10,8 +10,11 @@ function safeCell(v: string | number | null | undefined) {
   return /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
 }
 
+/** Nombre au format français pour Excel : virgule décimale, deux décimales, sans séparateur de milliers. */
+const frNumber = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(2).replace(".", ","));
+
 export function toCSV<T>(rows: T[], cols: Column<T>[]): string {
-  const esc = (v: string | number) => { const s = String(v); return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const esc = (v: string | number) => { const s = typeof v === "number" ? frNumber(v) : String(v); return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const lines = [cols.map((c) => esc(c.header)).join(";"), ...rows.map((r) => cols.map((c) => esc(safeCell(c.value(r)))).join(";"))];
   return "﻿" + lines.join("\r\n"); // BOM + « ; » : ouverture directe dans Excel en français
 }
