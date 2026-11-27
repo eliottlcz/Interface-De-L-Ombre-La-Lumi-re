@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Folder, FileText, ExternalLink, ChevronLeft, Upload, FolderPlus, Link2 } from "lucide-react";
-import { Button, Input, useAction } from "@/components/ui";
+import { Button, Input, useAction, useToast } from "@/components/ui";
+import { MAX_UPLOAD_BYTES } from "@/lib/upload-limits";
 import { browseDrive, linkDriveFolder, uploadToDrive } from "@/actions/drive";
 import { createDriveFolderForEpisode } from "@/actions/production";
 import type { DriveFile } from "@/lib/integrations/drive";
@@ -15,6 +16,7 @@ export function DrivePanel({ target, id, folderId, folderUrl, connected, canEdit
   const [link, setLink] = useState("");
   const { pending, exec } = useAction();
   const fileInput = useRef<HTMLInputElement>(null);
+  const toast = useToast();
   const cur = stack[stack.length - 1];
 
   useEffect(() => { setStack(folderId ? [{ id: folderId, name: "Dossier" }] : []); }, [folderId]);
@@ -65,7 +67,7 @@ export function DrivePanel({ target, id, folderId, folderUrl, connected, canEdit
         )}
       {connected && canEdit && cur && (
         <>
-          <input ref={fileInput} type="file" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) { const fd = new FormData(); fd.set("folderId", cur.id); fd.set("file", f); exec(() => uploadToDrive(fd), { onSuccess: () => setStack([...stack]) }); } e.target.value = ""; }} />
+          <input ref={fileInput} type="file" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f && f.size > MAX_UPLOAD_BYTES) toast(`« ${f.name} » dépasse 15 Mo : pour les rushs et exports volumineux, déposez-le directement dans Google Drive (bouton « Ouvrir dans Drive »).`, "error"); else if (f) { const fd = new FormData(); fd.set("folderId", cur.id); fd.set("file", f); exec(() => uploadToDrive(fd), { onSuccess: () => setStack([...stack]) }); } e.target.value = ""; }} />
           <Button size="sm" className="mt-3" loading={pending} onClick={() => fileInput.current?.click()}><Upload className="size-4" />Envoyer un document ici</Button>
         </>
       )}

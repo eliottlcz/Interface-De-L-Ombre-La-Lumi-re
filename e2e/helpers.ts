@@ -16,10 +16,20 @@ export async function login(page: Page, who: Who, password = PASSWORD) {
   await page.fill("input[name=password]", password);
   await page.click("form button[type=submit], form button");
   await page.waitForURL((u) => !u.pathname.startsWith("/connexion"), { timeout: 30_000 });
+  await waitHydrated(page);
+}
+/** Attend que React ait « hydraté » la page (sinon un clic immédiat après la navigation peut être perdu). */
+export async function waitHydrated(page: Page) {
+  await page.waitForFunction(() => [...document.querySelectorAll("body *")].some((e) => Object.keys(e).some((k) => k.startsWith("__reactFiber") || k.startsWith("__reactProps"))), null, { timeout: 15_000 }).catch(() => {});
+}
+export function autoHydrate(page: Page) {
+  const orig = page.goto.bind(page);
+  page.goto = (async (url: string, opts?: Parameters<Page["goto"]>[1]) => { const r = await orig(url, opts); await waitHydrated(page); return r; }) as Page["goto"];
+  return page;
 }
 export async function session(browser: Browser, who: Who, viewport?: { width: number; height: number }): Promise<{ ctx: BrowserContext; page: Page }> {
   const ctx = await browser.newContext({ viewport: viewport ?? { width: 1440, height: 900 }, locale: "fr-FR", timezoneId: "Europe/Paris", baseURL: URL });
-  const page = await ctx.newPage();
+  const page = autoHydrate(await ctx.newPage());
   await login(page, who);
   return { ctx, page };
 }

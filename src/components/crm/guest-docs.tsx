@@ -2,10 +2,11 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { Check, Upload, Link2, Trash2, ShieldAlert, ShieldCheck } from "lucide-react";
-import { Badge, Button, ConfirmButton, Input, Select, useAction } from "@/components/ui";
+import { Badge, Button, ConfirmButton, Input, Select, useAction, useToast } from "@/components/ui";
 import { attachGuestDocProof, createGuestDoc, deleteGuestDoc, setGuestDocStatus } from "@/actions/guest-docs";
 import { GUEST_DOC_KIND, GUEST_DOC_STATUS } from "@/lib/labels";
 import { formatDate } from "@/lib/dates";
+import { MAX_UPLOAD_BYTES, tooBigMessage } from "@/lib/upload-limits";
 
 export type GuestDocView = {
   id: string; contactId: string; contactName?: string; episodeId: string | null; episodeTitle?: string | null;
@@ -37,6 +38,7 @@ function DocRow({ d, canEdit, showContact }: { d: GuestDocView; canEdit: boolean
   const { pending, exec } = useAction();
   const file = useRef<HTMLInputElement>(null);
   const [linkMode, setLinkMode] = useState(false);
+  const toast = useToast();
   const [url, setUrl] = useState("");
   const hasProof = Boolean(d.proofAttachmentId || d.proofUrl);
   const send = (fd: FormData) => { fd.set("id", d.id); exec(() => attachGuestDocProof(fd), { onSuccess: () => { setLinkMode(false); setUrl(""); } }); };
@@ -56,7 +58,7 @@ function DocRow({ d, canEdit, showContact }: { d: GuestDocView; canEdit: boolean
       </div>
       {canEdit && (
         <div className="mt-3 flex flex-wrap gap-2">
-          <input ref={file} type="file" hidden accept="application/pdf,image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) { const fd = new FormData(); fd.set("file", f); send(fd); } e.target.value = ""; }} />
+          <input ref={file} type="file" hidden accept="application/pdf,image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f && f.size > MAX_UPLOAD_BYTES) toast(tooBigMessage(f.name), "error"); else if (f) { const fd = new FormData(); fd.set("file", f); send(fd); } e.target.value = ""; }} />
           {d.status !== "valide" && <Button size="sm" loading={pending} onClick={() => file.current?.click()}><Upload className="size-3.5" />Déposer le document signé</Button>}
           {d.status !== "valide" && <Button size="sm" variant="ghost" onClick={() => setLinkMode(!linkMode)}><Link2 className="size-3.5" />Lien</Button>}
           {d.status === "manquant" && <Button size="sm" variant="ghost" onClick={() => exec(() => setGuestDocStatus(d.id, "demande"))}>Marquer « demandé »</Button>}

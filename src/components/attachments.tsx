@@ -1,15 +1,17 @@
 "use client";
 import { useRef, useState } from "react";
 import { Paperclip, Link2, Trash2, FileText, ExternalLink } from "lucide-react";
-import { Button, Input, useAction, ConfirmButton } from "@/components/ui";
+import { Button, Input, useAction, useToast, ConfirmButton } from "@/components/ui";
 import { addLinkAttachment, deleteAttachment, uploadAttachment } from "@/actions/attachments";
 import type { AttachmentView } from "@/lib/queries";
 import { timeAgo } from "@/lib/dates";
+import { MAX_UPLOAD_BYTES, tooBigMessage } from "@/lib/upload-limits";
 
 export function Attachments({ entityType, entityId, items, canEdit }: { entityType: string; entityId: string; items: AttachmentView[]; canEdit: boolean }) {
   const file = useRef<HTMLInputElement>(null);
   const { pending, exec } = useAction();
   const [link, setLink] = useState<{ name: string; url: string } | null>(null);
+  const toast = useToast();
   return (
     <div>
       <ul className="flex flex-col gap-1">
@@ -31,8 +33,11 @@ export function Attachments({ entityType, entityId, items, canEdit }: { entityTy
         <div className="mt-3 flex flex-wrap gap-2">
           <input ref={file} type="file" multiple hidden onChange={(e) => {
             const fd = new FormData(); fd.set("entityType", entityType); fd.set("entityId", entityId);
-            for (const f of Array.from(e.target.files ?? [])) fd.append("file", f);
-            exec(() => uploadAttachment(fd)); e.target.value = "";
+            const ok = Array.from(e.target.files ?? []).filter((f) => { if (f.size > MAX_UPLOAD_BYTES) { toast(tooBigMessage(f.name), "error"); return false; } return true; });
+            e.target.value = "";
+            if (!ok.length) return;
+            for (const f of ok) fd.append("file", f);
+            exec(() => uploadAttachment(fd));
           }} />
           <Button size="sm" loading={pending} onClick={() => file.current?.click()}><Paperclip className="size-4" />Joindre un fichier</Button>
           <Button size="sm" variant="ghost" onClick={() => setLink(link ? null : { name: "", url: "" })}><Link2 className="size-4" />Ajouter un lien (Drive…)</Button>

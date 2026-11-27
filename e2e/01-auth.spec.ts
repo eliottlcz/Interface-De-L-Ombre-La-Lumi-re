@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { EMAIL, PASSWORD, URL, invites, sql, submit } from "./helpers";
+import { EMAIL, PASSWORD, URL, invites, sql, submit, autoHydrate } from "./helpers";
+
+test.beforeEach(async ({ page }) => { autoHydrate(page); });
 
 test.describe.configure({ mode: "serial" });
 

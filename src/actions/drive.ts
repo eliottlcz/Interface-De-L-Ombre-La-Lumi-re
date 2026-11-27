@@ -46,7 +46,7 @@ export async function uploadToDrive(form: FormData) {
     const folderId = z.string().regex(/^[a-zA-Z0-9_-]{10,}$/).parse(form.get("folderId"));
     const f = form.get("file");
     if (!(f instanceof File) || !f.size) userError("Aucun fichier");
-    if (f.size > 50 * 1024 * 1024) userError("Pour les fichiers de plus de 50 Mo (rushs, exports), déposez-les directement dans Google Drive.");
+    if (f.size > 15 * 1024 * 1024) userError("Au-delà de 15 Mo (rushs, exports), déposez le fichier directement dans Google Drive.");
     const r = await uploadFile(folderId, f.name, f.type || "application/octet-stream", Buffer.from(await f.arrayBuffer()));
     await audit({ userId: u.id, action: "drive.envoi", summary: `Fichier « ${f.name} » envoyé sur Drive` });
     return { ok: true as const, data: r, message: "Fichier envoyé sur Drive" };
