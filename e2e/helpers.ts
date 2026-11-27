@@ -20,7 +20,9 @@ export async function login(page: Page, who: Who, password = PASSWORD) {
 }
 /** Attend que React ait « hydraté » la page (sinon un clic immédiat après la navigation peut être perdu). */
 export async function waitHydrated(page: Page) {
-  await page.waitForFunction(() => [...document.querySelectorAll("body *")].some((e) => Object.keys(e).some((k) => k.startsWith("__reactFiber") || k.startsWith("__reactProps"))), null, { timeout: 15_000 }).catch(() => {});
+  await page.waitForFunction(() =>
+    document.querySelectorAll('div[hidden][id^="S:"]').length === 0 && // le contenu diffusé en continu a remplacé l'écran de chargement
+    [...document.querySelectorAll("body *")].some((e) => Object.keys(e).some((k) => k.startsWith("__reactFiber") || k.startsWith("__reactProps"))), null, { timeout: 15_000 }).catch(() => {});
 }
 export function autoHydrate(page: Page) {
   const orig = page.goto.bind(page);
