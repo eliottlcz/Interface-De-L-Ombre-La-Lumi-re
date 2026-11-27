@@ -21,7 +21,7 @@ async function main() {
     for (const t of BACKUP_TABLES) {
       const rows = data.tables[t] ?? [];
       if (!rows.length) continue;
-      await tx.unsafe(`insert into "${t}" select * from jsonb_populate_recordset(null::"${t}", $1::jsonb) on conflict do nothing`, [JSON.stringify(rows)]);
+      await tx.unsafe(`insert into "${t}" select * from jsonb_populate_recordset(null::"${t}", $1::text::jsonb) on conflict do nothing`, [JSON.stringify(rows)]);
       console.log(`  ${t} : ${rows.length}`);
     }
     await tx`alter table audit_log enable trigger audit_log_no_update`;

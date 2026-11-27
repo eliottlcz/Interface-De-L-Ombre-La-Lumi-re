@@ -25,7 +25,10 @@ export function MissionsView({ me, canEdit, canDeleteAll, tasks, users, episodes
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
-  const space = sp.get("espace") ?? "moi";
+  const urlSpace = sp.get("espace") ?? "moi";
+  // Choix d'onglet appliqué tout de suite (l'URL suit quelques instants après) : « Nouvelle tâche » cliqué aussitôt utilise le bon espace
+  const [pickedSpace, setPickedSpace] = useState<{ from: string; to: string } | null>(null);
+  const space = pickedSpace && pickedSpace.from === urlSpace ? pickedSpace.to : urlSpace;
   const view = (sp.get("vue") as View) ?? "liste";
   const [prio, setPrio] = useState("");
   const [who, setWho] = useState("");
@@ -77,7 +80,7 @@ export function MissionsView({ me, canEdit, canDeleteAll, tasks, users, episodes
         description={space !== "moi" && space !== "tout" && space !== "communes" ? `Ce que vous créez ici est attribué à ${ownerName?.split(" ")[0]} — il ou elle est prévenu(e) aussitôt.` : "Créez, attribuez, cochez : chaque modification apparaît instantanément chez toute l'équipe."}
         actions={canEdit && <Button variant="gold" onClick={() => setCreating(emptyTask(spaceOwner))}><Plus className="size-4" />Nouvelle tâche</Button>} />
 
-      <Tabs value={space} onChange={(v) => setParam("espace", v)} items={spaces} />
+      <Tabs value={space} onChange={(v) => { setPickedSpace({ from: urlSpace, to: v }); setParam("espace", v); }} items={spaces} />
 
       <div className="my-5 flex flex-wrap items-center gap-2">
         <Segmented value={view} onChange={(v) => setParam("vue", v)} items={[

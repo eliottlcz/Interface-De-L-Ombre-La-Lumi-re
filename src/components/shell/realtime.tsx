@@ -18,9 +18,14 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    // Chaque événement planifie un rafraîchissement rapide, puis un second de rattrapage :
+    // un rafraîchissement lancé avant la fin des écritures de l'auteur pourrait sinon laisser des données périmées.
+    let second: ReturnType<typeof setTimeout> | null = null;
     const refresh = () => {
       if (timer.current) clearTimeout(timer.current);
+      if (second) clearTimeout(second);
       timer.current = setTimeout(() => router.refresh(), 350);
+      second = setTimeout(() => router.refresh(), 1800);
     };
     let es: EventSource | null = null;
     let fallback: ReturnType<typeof setInterval> | null = null;
@@ -42,7 +47,9 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
     };
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("online", onVisible);
-    return () => { es?.close(); stopFallback(); document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("online", onVisible); };
+    // Filet de sécurité : actualisation lente tant que l'onglet est visible
+    const safety = setInterval(() => { if (document.visibilityState === "visible") router.refresh(); }, 60_000);
+    return () => { es?.close(); stopFallback(); clearInterval(safety); if (timer.current) clearTimeout(timer.current); if (second) clearTimeout(second); document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("online", onVisible); };
   }, [router]);
 
   return <Ctx.Provider value={status}>{children}</Ctx.Provider>;

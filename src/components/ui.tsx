@@ -57,7 +57,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttrib
 export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(function Select({ className, children, ...p }, ref) {
   return <select ref={ref} {...p} className={clsx(fieldBase, "appearance-none pr-8 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238f8a80%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>')] bg-no-repeat bg-[right_10px_center]", className)}>{children}</select>;
 });
-export function Field({ label, hint, children, className, required }: { label: string; hint?: React.ReactNode; children: React.ReactNode; className?: string; required?: boolean }) {
+export function Field({ label, hint, children, className, required, controlId }: { label: string; hint?: React.ReactNode; children: React.ReactNode; className?: string; required?: boolean; controlId?: string }) {
   const id = useId();
   const only = Children.toArray(children);
   const child = only.length === 1 && isValidElement(only[0]) ? (only[0] as React.ReactElement<{ id?: string }>) : null;
@@ -65,8 +65,8 @@ export function Field({ label, hint, children, className, required }: { label: s
   return (
     <div className={clsx("flex flex-col gap-1.5", className)}>
       {/* libellé relié au champ (htmlFor) : le nom accessible du champ est exactement ce libellé, sans le texte de ses options */}
-      <label id={`${id}-l`} htmlFor={isControl ? child!.props.id ?? id : undefined} className="text-xs font-medium text-soft">{label}{required && <span className="text-gold" aria-hidden="true"> *</span>}</label>
-      {isControl ? cloneElement(child!, { id: child!.props.id ?? id, ...(required ? { "aria-required": true } : {}) } as object) : <div role="group" aria-labelledby={`${id}-l`}>{children}</div>}
+      <label id={`${id}-l`} htmlFor={controlId ?? (isControl ? child!.props.id ?? id : undefined)} className="text-xs font-medium text-soft">{label}{required && <span className="text-gold" aria-hidden="true"> *</span>}</label>
+      {isControl ? cloneElement(child!, { id: child!.props.id ?? id, ...(required ? { "aria-required": true } : {}) } as object) : controlId ? children : <div role="group" aria-labelledby={`${id}-l`}>{children}</div>}
       {hint && <span className="text-xs text-muted">{hint}</span>}
     </div>
   );

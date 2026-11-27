@@ -120,8 +120,8 @@ function VaultForm({ init, onDone }: { init: Item | null; onDone: () => void }) 
       <Field label="Libellé"><Input value={v.label} onChange={set("label")} placeholder="Compte principal" /></Field>
       <Field label="Identifiant / e-mail"><Input value={v.username} onChange={set("username")} autoComplete="off" /></Field>
       <Field label="Adresse du service" className="sm:col-span-2"><Input type="url" value={v.url} onChange={set("url")} /></Field>
-      <Field label={init ? "Nouveau mot de passe (laisser vide pour conserver)" : "Mot de passe / secret"} required={!init} className="sm:col-span-2">
-        <div className="flex gap-2"><Input type={show ? "text" : "password"} value={v.secret} onChange={set("secret")} autoComplete="new-password" required={!init} /><Button type="button" variant="ghost" onClick={() => setShow(!show)} aria-label="Afficher">{show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</Button></div>
+      <Field label={init ? "Nouveau mot de passe (laisser vide pour conserver)" : "Mot de passe / secret"} required={!init} controlId="vault-secret" className="sm:col-span-2">
+        <div className="flex gap-2"><Input id="vault-secret" type={show ? "text" : "password"} value={v.secret} onChange={set("secret")} autoComplete="new-password" required={!init} /><Button type="button" variant="ghost" onClick={() => setShow(!show)} aria-label="Afficher">{show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</Button></div>
       </Field>
       <Field label={init ? "Notes chiffrées (remplacent les actuelles si renseignées)" : "Notes chiffrées (codes de secours…)"} className="sm:col-span-2"><Textarea rows={3} value={v.notes} onChange={set("notes")} /></Field>
       <div className="flex justify-end gap-2 sm:col-span-2"><Button type="button" variant="ghost" onClick={onDone}>Annuler</Button><Button type="submit" variant="gold" loading={pending}>Chiffrer et enregistrer</Button></div>

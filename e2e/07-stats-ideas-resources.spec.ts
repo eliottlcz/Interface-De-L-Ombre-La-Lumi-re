@@ -167,7 +167,8 @@ test("tâche quotidienne : rappels d'échéance et de relance sans doublon, idé
   await expect(page.getByText("En retard : Rendre le sous-titrage")).toBeVisible();
   await page.getByText("En retard : Rendre le sous-titrage").click();
   await expect(page).toHaveURL(new RegExp(`/missions\\?tache=${t.id}`));
-  await expect(page.getByRole("button", { name: "Notifications" })).not.toContainText("2"); // lues au clic
+  // marquée comme lue au clic (vérifié en base : le compteur affiché peut inclure d'autres notifications)
+  await expect.poll(async () => (await one(`select read_at is not null as r from notifications where user_id = '${a.id}' and title = 'En retard : Rendre le sous-titrage'`)).r).toBe(true);
   await ctx.close();
   void c;
 });

@@ -22,7 +22,7 @@ test("Arthur : finances et coffre-fort refusés côté serveur", async ({ browse
   const { ctx, page } = await session(browser, "arthur");
   await page.goto("/finances");
   await expect(page).toHaveURL(/\/\?refus=finances/);
-  await expect(page.getByText(/pas ouverte à votre profil/i)).toBeVisible();
+  await expect(page.getByRole("main").getByText(/pas ouverte à votre profil/i)).toBeVisible();
   await page.goto("/ressources/coffre-fort");
   await expect(page).toHaveURL(/\/\?refus=coffre/);
   await expect(page.locator("aside").getByRole("link", { name: "Finances" })).toHaveCount(0);
