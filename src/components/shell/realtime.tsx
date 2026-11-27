@@ -29,7 +29,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
     const connect = () => {
       es?.close();
       es = new EventSource("/api/realtime");
-      es.addEventListener("ready", () => { setStatus("connecte"); stopFallback(); });
+      es.addEventListener("ready", () => { setStatus("connecte"); stopFallback(); refresh(); }); // rattrape toute modification survenue avant/pendant la (re)connexion
       es.addEventListener("change", refresh);
       es.addEventListener("error", () => { setStatus("secours"); startFallback(); });
     };

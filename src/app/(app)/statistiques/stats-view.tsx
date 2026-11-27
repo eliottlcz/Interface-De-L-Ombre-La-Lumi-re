@@ -8,7 +8,7 @@ import { deleteManualMetric, importManualSeries, saveManualMetrics, syncNow } fr
 import { compact, formatDate, formatDateTime, timeAgo, todayISO } from "@/lib/dates";
 import type { PlatformKey } from "@/lib/labels";
 
-type Metric = { key: string; label: string; api: boolean; latest: { value: number; day: string; source: "api" | "manuel" } | null; delta: number | null; series: { day: string; value: number; source: string }[]; manual: { day: string; value: number }[] };
+type Metric = { key: string; label: string; api: boolean; baseDay: string | null; latest: { value: number; day: string; source: "api" | "manuel" } | null; delta: number | null; series: { day: string; value: number; source: string }[]; manual: { day: string; value: number }[] };
 export type PlatformData = {
   key: PlatformKey; label: string;
   connector: { configured: boolean; connected: boolean; account: string | null; lastSync: string | null; lastError: string | null; envVars: string[]; docs: string } | null;
@@ -68,7 +68,7 @@ export function StatsView({ platforms, period, from, to, canEnter, canConnect }:
                 {m.latest ? (
                   <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted">
                     <Badge tone={m.latest.source === "api" ? "ok" : "olive"}>{m.latest.source === "api" ? "API" : "Saisie manuelle"}</Badge>{formatDate(m.latest.day, { day: "numeric", month: "short" })}
-                    {m.delta !== null && <span className={m.delta >= 0 ? "text-gold" : "text-alert"}>{m.delta >= 0 ? "+" : ""}{compact(m.delta)} sur la période</span>}
+                    {m.delta !== null && <span className={m.delta >= 0 ? "text-gold" : "text-alert"}>{m.delta >= 0 ? "+" : ""}{compact(m.delta)} depuis le {formatDate(m.baseDay!, { day: "numeric", month: "short" })}</span>}
                   </div>
                 ) : <div className="mt-1 text-[11px] text-muted">{m.api ? (current.connector?.connected ? "Pas encore synchronisé" : "Donnée indisponible — compte non connecté") : "Non fourni par l'API — saisie manuelle"}</div>}
               </Card>

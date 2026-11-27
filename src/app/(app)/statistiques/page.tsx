@@ -40,6 +40,7 @@ export default async function StatsPage({ searchParams }: { searchParams: Promis
         key: m.key, label: m.label, api: m.api && Boolean(conn),
         latest: latest ? { value: latest.value, day: latest.day, source: latest.source } : null,
         delta: latest && base && base.day < latest.day ? latest.value - base.value : null,
+        baseDay: latest && base && base.day < latest.day ? base.day : null,
         series: ordered.filter((x) => x.day >= from && x.day <= to).map((x) => ({ day: x.day, value: x.value, source: x.source })),
         manual: all.filter((x) => x.source === "manuel" && x.day >= from && x.day <= to).map((x) => ({ day: x.day, value: x.value })),
       };

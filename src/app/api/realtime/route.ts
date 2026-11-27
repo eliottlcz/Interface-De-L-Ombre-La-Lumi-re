@@ -16,6 +16,7 @@ export async function GET(req: Request) {
       const send = (data: string, event = "change") => {
         try { controller.enqueue(enc.encode(`event: ${event}\ndata: ${data}\n\n`)); } catch { /* fermé */ }
       };
+      controller.enqueue(enc.encode("retry: 1000\n\n")); // reconnexion rapide après la fermeture périodique du flux
       send("ok", "ready");
       let unsub: () => void = () => {};
       try {
