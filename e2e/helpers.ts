@@ -44,3 +44,7 @@ export async function submit(page: Page, selector = "form button[type=submit], f
   await resp;
   await page.waitForTimeout(350);
 }
+
+/** Dates relatives au jour courant (Paris), pour des tests valables n'importe quel jour. */
+export const todayParis = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(new Date());
+export const plusDays = (n: number, from = todayParis()) => { const d = new Date(from + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };

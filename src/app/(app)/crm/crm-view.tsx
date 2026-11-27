@@ -80,7 +80,7 @@ export function CrmView({ contacts, users, meId, canEdit, initialCreate, initial
           onMove={(id, col) => exec(() => moveContact(id, col as Cat))}
           renderCard={(c) => (
             <div className="rounded-xl border border-line bg-night p-3">
-              <Link href={`/crm/${c.id}`} className="block" onPointerDown={(e) => e.stopPropagation()}>
+              <Link href={`/crm/${c.id}`} className="block">
                 <div className="flex items-center justify-between gap-2"><span className="font-medium">{name(c)}</span><Avatar name={c.ownerName} size={22} /></div>
                 {c.profession && <div className="truncate text-xs text-muted">{c.profession}</div>}
                 <div className="mt-2 flex flex-wrap gap-1.5">

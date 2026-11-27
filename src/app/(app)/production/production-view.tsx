@@ -62,7 +62,7 @@ export function ProductionView({ episodes, users, contacts, meId, canEdit, initi
           onMove={(id, col) => exec(() => setEpisodeStage(id, col as EpisodeStage))}
           renderCard={(e) => (
             <div className="rounded-xl border border-line bg-night p-3">
-              <Link href={`/production/${e.id}`} onPointerDown={(ev) => ev.stopPropagation()} className="block">
+              <Link href={`/production/${e.id}`} className="block">
                 <EpisodeCardBody e={e} />
               </Link>
               {canEdit && (
