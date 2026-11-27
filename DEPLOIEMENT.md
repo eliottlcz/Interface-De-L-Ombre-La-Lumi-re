@@ -91,3 +91,9 @@ bash scripts/demarrer.sh --public --eliott=… --arthur=…                     
 
 Le script crée les secrets (`.env.docker`, à sauvegarder), lance PostgreSQL et l'application, applique les migrations et affiche les deux liens d'invitation à usage unique. Avec `--public`, un tunnel Cloudflare fournit une adresse `https://….trycloudflare.com` temporaire : l'accès reste réservé aux comptes invités, mais l'adresse change à chaque redémarrage du tunnel. Pour un usage durable, préférez les sections 1 à 4.
 Safari refuse les cookies sécurisés en `http://localhost` : utilisez Chrome/Firefox en local, ou l'option `--public` pour Safari et iPad.
+
+## 10. Mise en ligne depuis un iPad / un téléphone (sans terminal)
+
+1. Supabase : créer le projet, relever la chaîne **Transaction pooler** (`DATABASE_URL`, avec `DATABASE_PREPARE=false`) et la chaîne **Session pooler** (port 5432, compatible IPv4) pour `DATABASE_URL_DIRECT`.
+2. Vercel : importer le dépôt (branche de production), saisir les variables de `.env.example`. Le déploiement applique tout seul les migrations (`vercel-build`).
+3. Ouvrir une fois, dans Safari : `APP_URL/api/amorcage?cle=<CRON_SECRET>&eliott=<mail>&arthur=<mail>` → affiche les deux liens d'invitation. Cette adresse est refusée sans la clé, et se désactive dès qu'un compte existe.
