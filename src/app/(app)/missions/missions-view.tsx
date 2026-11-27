@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import { Ago } from "@/components/ui";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus, List, Columns3, CalendarDays, History, Trash2, Send } from "lucide-react";
 import { Avatar, Badge, Button, ConfirmButton, EmptyState, Modal, PageHeader, Segmented, Select, Tabs, Textarea, useAction, cx } from "@/components/ui";
@@ -145,7 +146,7 @@ export function MissionsView({ me, canEdit, canDeleteAll, tasks, users, episodes
         : <Card2>{done.map((t) => (
             <button key={t.id} onClick={() => openTask(t.id)} className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left last:border-0 hover:bg-panel-2">
               <span className="text-gold">✓</span>
-              <span className="min-w-0 flex-1"><span className="block truncate text-sm">{t.title}</span><span className="text-xs text-muted">{t.assigneeName ?? "Commune"} · terminée {t.completedAt ? timeAgo(t.completedAt) : ""}</span></span>
+              <span className="min-w-0 flex-1"><span className="block truncate text-sm">{t.title}</span><span className="text-xs text-muted">{t.assigneeName ?? "Commune"} · terminée {t.completedAt ? <Ago value={t.completedAt} /> : ""}</span></span>
               <Badge tone={priorityTone(t.priority)}>{PRIORITY[t.priority]}</Badge>
             </button>
           ))}</Card2>)}

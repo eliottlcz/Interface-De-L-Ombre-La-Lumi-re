@@ -129,3 +129,15 @@ input[type="date"], input[type="time"], input[type="datetime-local"] { color-sch
   .reveal-light, .beam, .lights-up { animation: none; }
   .btn-light::after, .focus-line::after { animation: none; }
 }
+
+/* ───────── Écrans tactiles (iPad, iPhone) : zones d'appui confortables ───────── */
+/* Dans la couche « base » : les classes d'utilité (hidden, lg:hidden…) gardent toujours la priorité. */
+@layer base {
+  @media (pointer: coarse) {
+    button, select, [role="tab"], textarea,
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]) { min-height: 40px; }
+    button:has(> svg:only-child) { min-width: 40px; }
+    /* éléments volontairement compacts (puces du calendrier, boutons « + » des cases) */
+    [data-dense] { min-height: 32px; }
+  }
+}

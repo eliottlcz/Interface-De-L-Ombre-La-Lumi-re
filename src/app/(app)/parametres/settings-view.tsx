@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Ago } from "@/components/ui";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Copy, Download, KeyRound, LogOut, PlugZap, ShieldCheck, UserPlus, CheckCircle2, AlertTriangle, CircleDashed } from "lucide-react";
 import { Avatar, Badge, Button, Card, Checkbox, ConfirmButton, EmptyState, Field, Input, Modal, PageHeader, Select, Tabs, useAction, useToast } from "@/components/ui";
@@ -73,7 +74,7 @@ function Profile({ me, sessions }: Props) {
       </Card>
       <Card className="p-5 xl:col-span-2">
         <div className="mb-3 font-semibold">Mes appareils connectés</div>
-        <ul className="flex flex-col">{sessions.map((s) => <li key={s.id} className="flex flex-wrap gap-x-3 border-b border-line/60 py-2 text-sm last:border-0"><span className="min-w-0 flex-1 truncate text-soft">{describeUA(s.ua)}</span><span className="text-muted">{s.ip ?? "—"}</span><span className="text-muted">actif {timeAgo(s.lastSeenAt)}</span></li>)}</ul>
+        <ul className="flex flex-col">{sessions.map((s) => <li key={s.id} className="flex flex-wrap gap-x-3 border-b border-line/60 py-2 text-sm last:border-0"><span className="min-w-0 flex-1 truncate text-soft">{describeUA(s.ua)}</span><span className="text-muted">{s.ip ?? "—"}</span><span className="text-muted">actif <Ago value={s.lastSeenAt} /></span></li>)}</ul>
         <p className="mt-3 text-xs text-muted">Changer de mot de passe déconnecte tous vos autres appareils.</p>
       </Card>
     </div>
@@ -102,7 +103,7 @@ function Team({ me, users, invites, perms, permissionCatalog, rolePermissions, s
         {users.map((u) => (
           <div key={u.id} className="flex flex-wrap items-center gap-3 border-b border-line/60 px-4 py-3 last:border-0">
             <Avatar name={u.name} size={34} />
-            <div className="min-w-0 flex-1"><div className="font-medium">{u.name} {!u.active && <Badge tone="muted">Désactivé</Badge>}</div><div className="truncate text-xs text-muted">{u.email} · {u.title ?? "—"} · dernière connexion {u.lastLoginAt ? timeAgo(u.lastLoginAt) : "jamais"}</div></div>
+            <div className="min-w-0 flex-1"><div className="font-medium">{u.name} {!u.active && <Badge tone="muted">Désactivé</Badge>}</div><div className="truncate text-xs text-muted">{u.email} · {u.title ?? "—"} · dernière connexion {u.lastLoginAt ? <Ago value={u.lastLoginAt} /> : "jamais"}</div></div>
             <Badge tone="gold">{ROLE_LABELS[u.role]}</Badge>
             {Object.keys(u.overrides).length > 0 && <Badge>{Object.keys(u.overrides).length} ajustement(s)</Badge>}
             <div className="flex gap-2">
@@ -114,7 +115,7 @@ function Team({ me, users, invites, perms, permissionCatalog, rolePermissions, s
         ))}
       </Card>
       {link && <Card className="border-gold/50 p-4"><div className="mb-2 text-sm font-semibold">Lien à transmettre à la personne (usage unique)</div><div className="flex gap-2"><Input readOnly value={link} onFocus={(e) => e.target.select()} /><Button onClick={() => copy(link)}><Copy className="size-4" /></Button></div></Card>}
-      {invites.length > 0 && <Card className="p-5"><div className="mb-2 font-semibold">Invitations en attente</div>{invites.map((i) => <div key={i.id} className="text-sm text-soft">{i.name ?? i.email} · {i.email} · {i.role ? ROLE_LABELS[i.role] : ""} · expire {timeAgo(i.expiresAt).replace("il y a", "dans")}</div>)}</Card>}
+      {invites.length > 0 && <Card className="p-5"><div className="mb-2 font-semibold">Invitations en attente</div>{invites.map((i) => <div key={i.id} className="text-sm text-soft">{i.name ?? i.email} · {i.email} · {i.role ? ROLE_LABELS[i.role] : ""} · expire <Ago value={i.expiresAt} /></div>)}</Card>}
       <Card className="p-5">
         <div className="mb-3 font-semibold">Ce que permet chaque rôle</div>
         <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-xs">
@@ -184,7 +185,7 @@ function Integrations({ integrations, perms, system }: Props) {
           return (
             <Card key={i.id} className="p-5">
               <div className="mb-2 flex items-center gap-2"><span className="text-lg font-semibold">{i.label}</span><Badge tone={state[0]}><Icon className="size-3" />{state[1]}</Badge></div>
-              {i.connected && <p className="text-sm text-soft">{i.account ?? "Compte connecté"}{i.lastSync && ` · synchronisé ${timeAgo(i.lastSync)}`}{i.expiresAt && i.id === "instagram" && ` · autorisation jusqu'au ${formatDateTime(i.expiresAt)}`}</p>}
+              {i.connected && <p className="text-sm text-soft">{i.account ?? "Compte connecté"}{i.lastSync && <> · synchronisé <Ago value={i.lastSync} /></>}{i.expiresAt && i.id === "instagram" && ` · autorisation jusqu'au ${formatDateTime(i.expiresAt)}`}</p>}
               {i.lastError && <p className="mt-1 text-xs text-alert">{i.lastError}</p>}
               {!i.configured && <p className="text-xs text-muted">À ajouter dans l&apos;hébergement : {i.env.join(", ")}.{i.docs && <> {i.docs}</>}</p>}
               {perms.integrations && i.configured && (
@@ -212,7 +213,7 @@ function Journal({ audits, logins }: Props) {
       <Tabs value={view} onChange={setView} className="mb-4" items={[{ value: "actions", label: "Actions sensibles" }, { value: "connexions", label: "Connexions" }]} />
       <Card className="overflow-hidden">
         {view === "actions" ? (audits.length === 0 ? <EmptyState title="Aucune action sensible" /> : audits.map((a) => (
-          <div key={a.id} className="flex flex-wrap gap-x-3 border-b border-line/60 px-4 py-2.5 text-sm last:border-0"><ShieldCheck className="mt-0.5 size-4 text-gold" /><span className="font-medium">{a.name ?? "Système"}</span><span className="min-w-0 flex-1 text-soft">{a.summary}</span><span className="text-xs text-muted" title={formatDateTime(a.at)}>{timeAgo(a.at)}</span></div>
+          <div key={a.id} className="flex flex-wrap gap-x-3 border-b border-line/60 px-4 py-2.5 text-sm last:border-0"><ShieldCheck className="mt-0.5 size-4 text-gold" /><span className="font-medium">{a.name ?? "Système"}</span><span className="min-w-0 flex-1 text-soft">{a.summary}</span><span className="text-xs text-muted" title={formatDateTime(a.at)}><Ago value={a.at} /></span></div>
         ))) : logins.map((l) => (
           <div key={l.id} className="flex flex-wrap gap-x-3 border-b border-line/60 px-4 py-2.5 text-sm last:border-0">
             <Badge tone={l.success ? "ok" : "alert"}>{l.success ? "Réussie" : "Échec"}</Badge><span>{l.email}</span><span className="text-muted">{l.reason?.replace(/_/g, " ") ?? ""}</span><span className="min-w-0 flex-1 truncate text-xs text-muted">{l.ip ?? ""} · {describeUA(l.ua)}</span><span className="text-xs text-muted">{formatDateTime(l.at)}</span>

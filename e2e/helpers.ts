@@ -50,3 +50,11 @@ export async function submit(page: Page, selector = "form button[type=submit], f
 /** Dates relatives au jour courant (Paris), pour des tests valables n'importe quel jour. */
 export const todayParis = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(new Date());
 export const plusDays = (n: number, from = todayParis()) => { const d = new Date(from + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+
+/** Session avec un profil d'appareil complet (iPhone, iPad…). */
+export async function sessionWith(browser: Browser, who: Who, opts: Parameters<Browser["newContext"]>[0]) {
+  const ctx = await browser.newContext({ locale: "fr-FR", timezoneId: "Europe/Paris", baseURL: URL, ...opts });
+  const page = autoHydrate(await ctx.newPage());
+  await login(page, who);
+  return { ctx, page };
+}

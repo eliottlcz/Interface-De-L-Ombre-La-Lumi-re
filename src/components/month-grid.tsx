@@ -116,7 +116,7 @@ function DayCell({ date, inMonth, isToday, onDay, children }: { date: string; in
       className={clsx("min-h-[112px] border-b border-r border-line p-1.5 [&:nth-child(7n)]:border-r-0", !inMonth && "bg-night/60", isOver && "bg-gold/10")}>
       <div className="mb-1 flex items-center justify-between px-1">
         <span className={clsx("text-xs", isToday ? "flex size-6 items-center justify-center rounded-full bg-gold font-bold text-black" : inMonth ? "text-soft" : "text-muted/50")}>{Number(date.slice(8))}</span>
-        {onDay && <button onClick={() => onDay(date)} className="text-xs text-muted opacity-0 hover:text-gold focus:opacity-100 [div:hover>&]:opacity-100" aria-label="Ajouter">+</button>}
+        {onDay && <button data-dense onClick={() => onDay(date)} className="flex size-8 items-center justify-center text-sm text-muted opacity-60 hover:text-gold focus:opacity-100 md:opacity-0 [div:hover>&]:opacity-100" aria-label="Ajouter">+</button>}
       </div>
       <div className="flex flex-col gap-1">{children}</div>
     </div>
@@ -125,7 +125,7 @@ function DayCell({ date, inMonth, isToday, onDay, children }: { date: string; in
 function GridChip({ it, onItem, draggable }: { it: GridItem; onItem: (id: string) => void; draggable: boolean }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: it.id, disabled: !draggable });
   return (
-    <button ref={setNodeRef} {...attributes} {...listeners} onClick={() => onItem(it.id)}
+    <button data-dense ref={setNodeRef} {...attributes} {...listeners} onClick={() => onItem(it.id)}
       className={clsx("flex w-full items-center gap-1.5 truncate rounded-md bg-panel-2 px-1.5 py-1 text-left text-[11px] hover:bg-line", isDragging && "opacity-40", it.muted && "text-muted line-through")}>
       <span className="h-3 w-[3px] shrink-0 -skew-x-12" style={{ background: it.color ?? "#DFC662" }} />
       {it.time && <span className="text-muted">{it.time}</span>}

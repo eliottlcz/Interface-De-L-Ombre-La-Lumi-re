@@ -39,12 +39,14 @@ export function relativeDay(iso: string | null | undefined, today = todayISO()):
   return n > 0 ? `dans ${n} j` : `il y a ${-n} j`;
 }
 export function timeAgo(v: string | Date): string {
-  const s = Math.round((Date.now() - new Date(v).getTime()) / 1000);
-  if (s < 60) return "à l'instant";
-  if (s < 3600) return `il y a ${Math.floor(s / 60)} min`;
-  if (s < 86400) return `il y a ${Math.floor(s / 3600)} h`;
+  const diff = (Date.now() - new Date(v).getTime()) / 1000; // > 0 : passé, < 0 : futur
+  const s = Math.abs(Math.round(diff));
+  const wrap = (x: string) => (diff < 0 ? `dans ${x}` : `il y a ${x}`);
+  if (s < 60) return diff < 0 ? "dans un instant" : "à l'instant";
+  if (s < 3600) return wrap(`${Math.floor(s / 60)} min`);
+  if (s < 86400) return wrap(`${Math.floor(s / 3600)} h`);
   const d = Math.floor(s / 86400);
-  return d < 30 ? `il y a ${d} j` : formatDate(new Date(v));
+  return d < 30 ? wrap(`${d} j`) : formatDate(new Date(v));
 }
 /** Convertit "AAAA-MM-JJ" + "HH:MM" (heure de Paris) en Date UTC. */
 export function parisToUtc(dateISO: string, time = "00:00"): Date {

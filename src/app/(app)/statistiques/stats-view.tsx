@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Ago } from "@/components/ui";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RefreshCw, PenLine, Upload, AlertTriangle, CheckCircle2, PlugZap, Trash2 } from "lucide-react";
 import { Badge, Button, Card, Field, Input, Modal, PageHeader, Segmented, Select, Tabs, Textarea, useAction, cx } from "@/components/ui";
@@ -123,7 +124,7 @@ function PlatformStatus({ p, canEnter, canConnect, onOpen, onEntry, onImport, on
           <Badge tone={state.tone}>{state.tone === "ok" ? <CheckCircle2 className="size-3" /> : state.tone === "alert" ? <AlertTriangle className="size-3" /> : null}{state.label}</Badge>
         </div>
         <p className={cx("text-xs", state.tone === "alert" ? "text-alert" : "text-muted")}>{state.text}</p>
-        {c?.lastSync && <p className="mt-1 text-xs text-muted" title={formatDateTime(c.lastSync)}>Dernière synchronisation : {timeAgo(c.lastSync)}</p>}
+        {c?.lastSync && <p className="mt-1 text-xs text-muted" title={formatDateTime(c.lastSync)}>Dernière synchronisation : <Ago value={c.lastSync} /></p>}
         {c && !c.lastSync && c.connected && <p className="mt-1 text-xs text-muted">Jamais synchronisé.</p>}
         {!wide && <div className="display mt-4 text-3xl">{followers ? compact(followers.value) : "—"}<span className="ml-2 font-sans text-xs font-normal normal-case text-muted">abonnés{followers?.source === "manuel" ? " · saisie manuelle" : ""}</span></div>}
         {wide && c && !c.configured && <p className="mt-2 text-xs text-muted">{c.docs}</p>}

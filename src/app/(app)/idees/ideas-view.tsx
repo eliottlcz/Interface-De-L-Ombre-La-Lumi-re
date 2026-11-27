@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Ago } from "@/components/ui";
 import Link from "next/link";
 import { Star, EyeOff, ListPlus, Sparkles, ExternalLink, Undo2 } from "lucide-react";
 import { Badge, Button, Card, EmptyState, Field, Input, Modal, PageHeader, Select, Tabs, useAction, cx } from "@/components/ui";
@@ -31,7 +32,7 @@ export function IdeasView({ ideas, lastRun, configured, model, today, focus, use
       ) : (
         <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
           {todays.length < 2 && canGenerate && <Button variant="gold" loading={pending} onClick={() => exec(() => generateIdeasNow())}><Sparkles className="size-4" />{todays.length ? "Compléter les idées du jour" : "Générer les idées du jour"}</Button>}
-          <span className="text-muted">Génération automatique chaque matin · modèle {model}{lastRun && ` · dernier essai ${timeAgo(lastRun.at)} : ${lastRun.status === "succes" ? "réussi" : lastRun.status === "en_cours" ? "en cours" : "échec"}`}</span>
+          <span className="text-muted">Génération automatique chaque matin · modèle {model}{lastRun && <> · dernier essai <Ago value={lastRun.at} /> : {lastRun.status === "succes" ? "réussi" : lastRun.status === "en_cours" ? "en cours" : "échec"}</>}</span>
           {lastRun?.status === "erreur" && <span className="w-full text-xs text-alert">{lastRun.message}</span>}
         </div>
       )}

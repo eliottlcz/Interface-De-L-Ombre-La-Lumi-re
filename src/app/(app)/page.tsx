@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Ago } from "@/components/ui";
 import { and, desc, eq, ne, sql } from "drizzle-orm";
 import { Plus, UserPlus, Clapperboard, CalendarPlus, Film, Wallet, ChartColumn, FolderPlus, Lightbulb, ArrowRight } from "lucide-react";
 import { requireUser } from "@/lib/auth/session";
@@ -103,7 +104,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
         </section>
       )}
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.25fr_1fr]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-6">
           <Card className="p-0">
             <div className="p-5 pb-2"><SectionTitle title="Urgences" eyebrow="En retard et aujourd'hui" action={<Link href="/a-ne-pas-oublier" className="text-xs text-gold">À ne pas oublier →</Link>} /></div>
@@ -145,7 +146,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
             <SectionTitle title="Dans les coulisses" eyebrow="Activité de l'équipe" action={<Link href="/activite" className="text-xs text-gold">Fil complet →</Link>} />
             {others.length === 0 ? <EmptyState title="Calme plat">L&apos;activité de vos coéquipiers apparaîtra ici.</EmptyState> : (
               <ul className="flex flex-col gap-3">{others.map(({ a, name }) => (
-                <li key={a.id} className="flex gap-3"><Avatar name={name} size={26} /><span className="min-w-0"><span className="block text-sm"><span className="font-medium">{name.split(" ")[0]}</span> · {a.summary}</span><span className="text-[11px] text-muted">{timeAgo(a.createdAt)}</span></span></li>
+                <li key={a.id} className="flex gap-3"><Avatar name={name} size={26} /><span className="min-w-0"><span className="block text-sm"><span className="font-medium">{name.split(" ")[0]}</span> · {a.summary}</span><span className="text-[11px] text-muted"><Ago value={a.createdAt} /></span></span></li>
               ))}</ul>
             )}
           </Card>

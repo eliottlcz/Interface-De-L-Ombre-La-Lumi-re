@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Ago } from "@/components/ui";
 import { and, desc, eq, lt, type SQL } from "drizzle-orm";
 import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/auth/permissions";
@@ -34,7 +35,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
         <Card className="overflow-hidden">
           {rows.filter(({ a }) => !hidden(a.entityType)).map(({ a, name }) => {
             const href = a.entityType && a.entityId && LINK[a.entityType] ? LINK[a.entityType] + a.entityId : null;
-            const body = <><Avatar name={name ?? "Système"} size={28} /><span className="min-w-0 flex-1"><span className="block text-sm"><span className="font-medium">{name ?? "Automatisation"}</span> — {a.summary}</span><span className="text-[11px] text-muted" title={formatDateTime(a.createdAt)}>{timeAgo(a.createdAt)}{a.sensitive && " · action sensible"}</span></span></>;
+            const body = <><Avatar name={name ?? "Système"} size={28} /><span className="min-w-0 flex-1"><span className="block text-sm"><span className="font-medium">{name ?? "Automatisation"}</span> — {a.summary}</span><span className="text-[11px] text-muted" title={formatDateTime(a.createdAt)}><Ago value={a.createdAt} />{a.sensitive && " · action sensible"}</span></span></>;
             return href
               ? <Link key={a.id} href={href} className="flex items-center gap-3 border-b border-line/60 px-4 py-3 last:border-0 hover:bg-panel-2">{body}</Link>
               : <div key={a.id} className="flex items-center gap-3 border-b border-line/60 px-4 py-3 last:border-0">{body}</div>;

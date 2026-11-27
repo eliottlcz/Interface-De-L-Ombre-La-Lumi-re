@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import { Ago } from "@/components/ui";
 import { Paperclip, Link2, Trash2, FileText, ExternalLink } from "lucide-react";
 import { Button, Input, useAction, useToast, ConfirmButton } from "@/components/ui";
 import { addLinkAttachment, deleteAttachment, uploadAttachment } from "@/actions/attachments";
@@ -20,7 +21,7 @@ export function Attachments({ entityType, entityId, items, canEdit }: { entityTy
           <li key={a.id} className="group flex items-center gap-3 rounded-lg border border-line bg-night px-3 py-2">
             {a.url ? <ExternalLink className="size-4 shrink-0 text-gold" /> : <FileText className="size-4 shrink-0 text-gold" />}
             <a href={a.url ?? `/api/attachments/${a.id}`} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1 truncate text-sm hover:text-gold">{a.filename}</a>
-            <span className="hidden text-[11px] text-muted sm:inline">{a.size ? `${Math.round(a.size / 1024)} Ko · ` : ""}{timeAgo(a.createdAt)}</span>
+            <span className="hidden text-[11px] text-muted sm:inline">{a.size ? `${Math.round(a.size / 1024)} Ko · ` : ""}<Ago value={a.createdAt} /></span>
             {canEdit && (
               <ConfirmButton size="sm" variant="ghost" message={`Supprimer « ${a.filename} » ?`} onConfirm={() => exec(() => deleteAttachment(a.id))}>
                 <Trash2 className="size-4" />

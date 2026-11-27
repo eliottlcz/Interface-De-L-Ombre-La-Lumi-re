@@ -4,9 +4,10 @@ import { twMerge } from "tailwind-merge";
 /** clsx + fusion des classes Tailwind (une classe passée en prop remplace celle par défaut). */
 const clsx = (...a: ClassValue[]) => twMerge(clsxBase(a));
 import Link from "next/link";
-import { createContext, forwardRef, useCallback, useContext, useEffect, useRef, useState, useTransition } from "react";
+import { Children, cloneElement, createContext, forwardRef, isValidElement, useCallback, useContext, useEffect, useId, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { X, Loader2 } from "lucide-react";
+import { timeAgo } from "@/lib/dates";
 
 export { clsx as cx };
 
@@ -57,12 +58,17 @@ export const Select = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<H
   return <select ref={ref} {...p} className={clsx(fieldBase, "appearance-none pr-8 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238f8a80%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>')] bg-no-repeat bg-[right_10px_center]", className)}>{children}</select>;
 });
 export function Field({ label, hint, children, className, required }: { label: string; hint?: React.ReactNode; children: React.ReactNode; className?: string; required?: boolean }) {
+  const id = useId();
+  const only = Children.toArray(children);
+  const child = only.length === 1 && isValidElement(only[0]) ? (only[0] as React.ReactElement<{ id?: string }>) : null;
+  const isControl = child !== null && (child.type === Input || child.type === Select || child.type === Textarea);
   return (
-    <label className={clsx("flex flex-col gap-1.5", className)}>
-      <span className="text-xs font-medium text-soft">{label}{required && <span className="text-gold"> *</span>}</span>
-      {children}
+    <div className={clsx("flex flex-col gap-1.5", className)}>
+      {/* libellé relié au champ (htmlFor) : le nom accessible du champ est exactement ce libellé, sans le texte de ses options */}
+      <label id={`${id}-l`} htmlFor={isControl ? child!.props.id ?? id : undefined} className="text-xs font-medium text-soft">{label}{required && <span className="text-gold" aria-hidden="true"> *</span>}</label>
+      {isControl ? cloneElement(child!, { id: child!.props.id ?? id, ...(required ? { "aria-required": true } : {}) } as object) : <div role="group" aria-labelledby={`${id}-l`}>{children}</div>}
       {hint && <span className="text-xs text-muted">{hint}</span>}
-    </label>
+    </div>
   );
 }
 export function Checkbox({ checked, onChange, label, disabled }: { checked: boolean; onChange: (v: boolean) => void; label?: React.ReactNode; disabled?: boolean }) {
@@ -263,6 +269,11 @@ export function ConfirmButton({ onConfirm, children, message, variant = "danger"
       </Modal>
     </>
   );
+}
+
+/** Temps relatif (« il y a 3 min », « dans 7 j ») : peut légitimement différer de quelques secondes entre le serveur et le navigateur. */
+export function Ago({ value, className }: { value: string | Date; className?: string }) {
+  return <time dateTime={new Date(value).toISOString()} suppressHydrationWarning className={className}>{timeAgo(value)}</time>;
 }
 
 export function ExternalLink({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) {

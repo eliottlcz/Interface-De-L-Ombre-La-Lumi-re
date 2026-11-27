@@ -87,7 +87,7 @@ export function EpisodeDetail({ e, guest, stages, tasks, docs, checklists, conte
         </ol>
       </Card>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_380px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="flex flex-col gap-6">
           <Card className="p-5" id="contenus">
             <SectionTitle title="Déclinaisons de contenu" action={perms.edit && <Button size="sm" onClick={() => exec(() => prepareDeclinations(e.id))}><Sparkles className="size-3.5" />Préparer toutes les déclinaisons</Button>} />

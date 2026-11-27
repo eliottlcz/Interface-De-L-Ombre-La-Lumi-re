@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { Ago } from "@/components/ui";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -96,7 +97,7 @@ export function AppShell({ user, urgentCount, notifications, unread, children }:
                         <span className="min-w-0">
                           <span className="block text-sm font-medium">{n.title}</span>
                           {n.body && <span className="block truncate text-xs text-muted">{n.body}</span>}
-                          <span className="block text-[11px] text-muted">{timeAgo(n.createdAt)}</span>
+                          <span className="block text-[11px] text-muted"><Ago value={n.createdAt} /></span>
                         </span>
                       </button>
                     ))}

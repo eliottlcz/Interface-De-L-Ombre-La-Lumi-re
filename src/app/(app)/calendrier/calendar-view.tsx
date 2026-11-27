@@ -127,7 +127,7 @@ function TimeColumns({ days, items, onItem, onMove, onAdd, onPrev, onNext, onTod
               <DayColumn key={d} date={d}>
                 <div className="mb-2 flex items-center justify-between">
                   <span className={cx("text-xs font-semibold uppercase tracking-wider", d === today ? "text-gold" : "text-muted")}>{dayLabel(d, { weekday: "short", day: "numeric" })}</span>
-                  {onAdd && <button onClick={() => onAdd(d)} className="text-sm text-muted hover:text-gold" aria-label="Ajouter">+</button>}
+                  {onAdd && <button data-dense onClick={() => onAdd(d)} className="flex size-8 items-center justify-center text-sm text-muted hover:text-gold" aria-label="Ajouter">+</button>}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   {list.length === 0 && <span className="text-[11px] text-muted/60">—</span>}
@@ -148,7 +148,7 @@ function DayColumn({ date, children }: { date: string; children: React.ReactNode
 function Chip({ i, onItem }: { i: CalItem; onItem: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: i.id });
   return (
-    <button ref={setNodeRef} {...attributes} {...listeners} onClick={() => onItem(i.id)}
+    <button data-dense ref={setNodeRef} {...attributes} {...listeners} onClick={() => onItem(i.id)}
       className={cx("flex w-full gap-2 rounded-lg bg-panel-2 p-2 text-left hover:bg-line", isDragging && "opacity-40")}>
       <span className="w-1 shrink-0 -skew-x-12 rounded-sm" style={{ background: EVENT_COLOR[i.type] }} />
       <span className="min-w-0">

@@ -42,7 +42,7 @@ export function ResourcesView({ resources, canEdit, canRestricted, canVault, ini
 
       {tab === "identite" && !cat && (
         <Card className="mb-6 overflow-hidden p-0">
-          <div className="grid grid-cols-1 md:grid-cols-[260px_1fr]">
+          <div className="grid grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)]">
             <div className="flex items-center justify-center bg-gold p-8"><Image src="/brand/logo-tile.png" alt="Logo officiel De l'Ombre à la Lumière" width={180} height={180} /></div>
             <div className="p-6">
               <div className="tag-gold mb-3">Charte officielle</div>

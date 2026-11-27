@@ -123,22 +123,26 @@ export function CrmView({ contacts, users, meId, canEdit, initialCreate, initial
               {/* Cartes (smartphone) */}
               <div className="flex flex-col gap-2 md:hidden">
                 {list.map((c) => (
-                  <Link key={c.id} href={`/crm/${c.id}`} className="rounded-xl border border-line bg-panel p-4 active:bg-panel-2">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="font-semibold">{name(c)}</div>
-                        <div className="truncate text-sm text-muted">{[c.profession, c.company].filter(Boolean).join(" · ") || "—"}</div>
+                  <div key={c.id} className="rounded-xl border border-line bg-panel">
+                    <Link href={`/crm/${c.id}`} className="block rounded-xl p-4 active:bg-panel-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="font-semibold">{name(c)}</div>
+                          <div className="truncate text-sm text-muted">{[c.profession, c.company].filter(Boolean).join(" · ") || "—"}</div>
+                        </div>
+                        <Badge tone={prioTone(c.priority)}>{PRIORITY[c.priority]}</Badge>
                       </div>
-                      <Badge tone={prioTone(c.priority)}>{PRIORITY[c.priority]}</Badge>
-                    </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-soft">
-                      {mobileFacts(c, today).map(([k, v]) => <div key={k}><div className="text-muted">{k}</div><div className="truncate">{v}</div></div>)}
-                    </div>
-                    <div className="mt-3 flex gap-2">
-                      {c.email && <a href={`mailto:${c.email}`} onClick={(e) => e.stopPropagation()} className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-3 text-xs"><Mail className="size-3.5" />E-mail</a>}
-                      {c.phone && <a href={`tel:${c.phone}`} onClick={(e) => e.stopPropagation()} className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-3 text-xs"><Phone className="size-3.5" />Appeler</a>}
-                    </div>
-                  </Link>
+                      <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-soft">
+                        {mobileFacts(c, today).map(([k, v]) => <div key={k}><div className="text-muted">{k}</div><div className="truncate">{v}</div></div>)}
+                      </div>
+                    </Link>
+                    {(c.email || c.phone) && (
+                      <div className="flex gap-2 px-4 pb-4">
+                        {c.email && <a href={`mailto:${c.email}`} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-xs"><Mail className="size-3.5" />E-mail</a>}
+                        {c.phone && <a href={`tel:${c.phone}`} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-xs"><Phone className="size-3.5" />Appeler</a>}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             </>

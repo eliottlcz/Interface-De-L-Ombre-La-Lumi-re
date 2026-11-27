@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { Ago } from "@/components/ui";
 import Link from "next/link";
 import { ArrowLeft, Eye, EyeOff, Copy, Lock, Unlock, Plus, Pencil, Trash2, ShieldCheck, ExternalLink } from "lucide-react";
 import { Badge, Button, Card, ConfirmButton, EmptyState, Field, Input, Modal, PageHeader, Select, Textarea, useAction, useToast } from "@/components/ui";
@@ -52,7 +53,7 @@ export function VaultView({ items, log, unlockedUntil, canEdit, encryptionReady 
       {log.length > 0 && (
         <Card className="mt-8 p-5">
           <div className="mb-3 flex items-center gap-2"><ShieldCheck className="size-4 text-gold" /><span className="display text-xs">Journal des consultations</span></div>
-          <ul className="flex flex-col gap-2 text-sm">{log.map((l) => <li key={l.id} className="flex flex-wrap gap-x-2"><span className="text-muted" title={formatDateTime(l.at)}>{timeAgo(l.at)}</span><span className="font-medium">{l.name ?? "—"}</span><span className="text-soft">{l.summary}</span></li>)}</ul>
+          <ul className="flex flex-col gap-2 text-sm">{log.map((l) => <li key={l.id} className="flex flex-wrap gap-x-2"><span className="text-muted" title={formatDateTime(l.at)}><Ago value={l.at} /></span><span className="font-medium">{l.name ?? "—"}</span><span className="text-soft">{l.summary}</span></li>)}</ul>
         </Card>
       )}
 
