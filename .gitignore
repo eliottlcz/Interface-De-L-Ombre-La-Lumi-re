@@ -9,3 +9,4 @@ test-results
 playwright-report
 backups/
 coverage
+e2e/.invites.json
