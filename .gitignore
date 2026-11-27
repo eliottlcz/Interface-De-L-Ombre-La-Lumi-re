@@ -10,3 +10,4 @@ playwright-report
 backups/
 coverage
 e2e/.invites.json
+.env.docker

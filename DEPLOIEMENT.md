@@ -79,3 +79,15 @@ Un test automatique vérifie la chaîne complète : sauvegarde téléchargée �
 
 Ces points dépendent de comptes que seul le propriétaire peut créer ; ils n'ont donc **pas** pu être testés en conditions réelles :
 connexions OAuth Google / Meta / TikTok, envoi d'e-mails (Resend), génération des idées (clé Anthropic), cron planifié sur Vercel. Chacun affiche son état réel dans *Paramètres → Intégrations* : à vérifier après configuration.
+
+## 9. Lancement en une commande (Docker)
+
+Pour essayer l'application sans hébergeur, sur un ordinateur ou un petit serveur avec Docker :
+
+```bash
+bash scripts/demarrer.sh --eliott=adresse1@… --arthur=adresse2@…            # http://localhost:3000
+bash scripts/demarrer.sh --public --eliott=… --arthur=…                      # + adresse https temporaire (iPad, téléphone)
+```
+
+Le script crée les secrets (`.env.docker`, à sauvegarder), lance PostgreSQL et l'application, applique les migrations et affiche les deux liens d'invitation à usage unique. Avec `--public`, un tunnel Cloudflare fournit une adresse `https://….trycloudflare.com` temporaire : l'accès reste réservé aux comptes invités, mais l'adresse change à chaque redémarrage du tunnel. Pour un usage durable, préférez les sections 1 à 4.
+Safari refuse les cookies sécurisés en `http://localhost` : utilisez Chrome/Firefox en local, ou l'option `--public` pour Safari et iPad.

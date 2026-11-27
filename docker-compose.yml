@@ -1,0 +1,31 @@
+# Lancement local ou sur un petit serveur : bash scripts/demarrer.sh
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dlal
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?lancez scripts/demarrer.sh}
+      POSTGRES_DB: dlal
+    volumes: ["dlal-data:/var/lib/postgresql/data"]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U dlal"], interval: 3s, retries: 30 }
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on: { db: { condition: service_healthy } }
+    ports: ["3000:3000"]
+    environment:
+      DATABASE_URL: postgres://dlal:${DB_PASSWORD}@db:5432/dlal
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      SESSION_SECRET: ${SESSION_SECRET}
+      VAULT_MASTER_KEY: ${VAULT_MASTER_KEY}
+      CRON_SECRET: ${CRON_SECRET}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  tunnel:
+    profiles: ["public"]
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://app:3000
+    depends_on: [app]
+volumes:
+  dlal-data:
