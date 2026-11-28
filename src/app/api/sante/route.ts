@@ -5,6 +5,7 @@ import { getReminders } from "@/lib/reminders";
 import { loadTasks } from "@/lib/task-queries";
 import { crossPlatform, internalCounts } from "@/lib/metrics";
 import { ROLE_PERMISSIONS } from "@/lib/auth/permissions";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,12 @@ export async function GET(req: NextRequest) {
     await mesure("compteurs", () => internalCounts());
     await mesure("abonnes", () => crossPlatform("abonnes"));
     await mesure("vues", () => crossPlatform("vues"));
+  }
+  if (req.nextUrl.searchParams.get("argon") === "1") {
+    try {
+      const t1 = Date.now(); const h = await hashPassword("diagnostic-Argon2-12345"); out.argon_hachage = `ok ${Date.now() - t1} ms`;
+      const t2 = Date.now(); const ok = await verifyPassword(h, "diagnostic-Argon2-12345"); out.argon_verification = `${ok ? "ok" : "ECHEC"} ${Date.now() - t2} ms`;
+    } catch (e) { out.argon_verification = `ERREUR ${(e as Error).message.slice(0, 120)}`; }
   }
   return NextResponse.json({ region: process.env.VERCEL_REGION ?? "inconnue", total_ms: Date.now() - t0, ...out }, { headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } });
 }
