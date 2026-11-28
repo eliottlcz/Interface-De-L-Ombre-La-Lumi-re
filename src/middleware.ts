@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /** Barrière d'accès : toute page hors authentification exige un cookie de session.
  *  La validité réelle de la session est vérifiée côté serveur à chaque requête. */
-const PUBLIC = ["/connexion", "/mot-de-passe-oublie", "/lien/", "/api/cron/", "/api/amorcage", "/api/integrations/callback", "/manifest.webmanifest", "/brand/", "/favicon"];
+const PUBLIC = ["/connexion", "/mot-de-passe-oublie", "/lien/", "/api/cron/", "/api/amorcage", "/api/sante", "/api/integrations/callback", "/manifest.webmanifest", "/brand/", "/favicon"];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
