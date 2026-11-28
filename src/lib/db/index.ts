@@ -17,10 +17,10 @@ function client() {
     const serverless = Boolean(process.env.VERCEL);
     const transactionMode = !process.env.DATABASE_URL_DIRECT && /:6543\b/.test(url);
     globalThis.__dlalSql = postgres(url, {
-      max: Number(process.env.DATABASE_POOL_SIZE ?? (serverless ? 3 : 5)),
+      max: Number(process.env.DATABASE_POOL_SIZE ?? (serverless ? 1 : 5)), // pooler session Supabase : 15 clients au total, toutes instances confondues
       prepare: transactionMode ? false : process.env.DATABASE_PREPARE !== "false", // pooler transaction : pas de requêtes préparées
       ssl: url.includes("localhost") || url.includes("127.0.0.1") ? false : "require",
-      idle_timeout: serverless ? 5 : 30,   // referme une connexion inutilisée après quelques secondes (libère le pooler)
+      idle_timeout: serverless ? 10 : 30,  // referme une connexion inutilisée (libère le pooler)
       max_lifetime: 60 * 10,               // renouvelle les connexions anciennes
       connect_timeout: 10,                 // échoue vite plutôt que d'attendre indéfiniment
     });
