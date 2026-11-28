@@ -79,8 +79,8 @@ Un test automatique vérifie la chaîne complète : sauvegarde téléchargée �
 
 ## 7 bis. Incident connu : pages qui ne se chargent jamais
 
-Symptôme : la connexion réussit mais toutes les pages privées restent bloquées. Cause : des connexions à la base laissées ouvertes par chaque instance saturent le pooler partagé de Supabase ; les requêtes **simultanées** (une page en lance plusieurs) attendent alors indéfiniment, alors que les requêtes isolées passent.
-Prévention (déjà dans le code, `src/lib/db/index.ts`) : une seule connexion par instance serverless, fermée après 5 s d'inactivité, délai de connexion de 10 s. Ne pas augmenter `DATABASE_POOL_SIZE` sur l'offre gratuite. Contrôle : `APP_URL/api/sante`.
+Symptôme : la connexion réussit mais toutes les pages privées restent bloquées (aucune réponse). Cause constatée en production : le pooler « transaction » de Supabase (port 6543) bloque indéfiniment les requêtes **sans paramètres envoyées en parallèle** ; une page en lance plusieurs. Le pooler « session » (port 5432) les accepte toutes.
+Correction (dans `src/lib/db/index.ts`) : le site utilise **`DATABASE_URL_DIRECT`** (pooler session) dès qu'elle est définie, avec 3 connexions maximum par instance, fermées après 5 s d'inactivité. **`DATABASE_URL_DIRECT` est donc obligatoire en production** avec Supabase. Contrôle : `APP_URL/api/sante`.
 
 ## 8. Ce qui reste à valider chez vous
 

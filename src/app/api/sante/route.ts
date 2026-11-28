@@ -19,7 +19,7 @@ export async function GET() {
   const presentes = (noms: string[]) => Object.fromEntries(noms.map((n) => [n, Boolean(process.env[n])]));
   let cle = false;
   try { cle = Buffer.from(process.env.VAULT_MASTER_KEY ?? "", "base64").length === 32; } catch { /* absent */ }
-  const requis = presentes(["DATABASE_URL", "APP_URL", "SESSION_SECRET", "CRON_SECRET"]);
+  const requis = presentes(["DATABASE_URL", "DATABASE_URL_DIRECT", "APP_URL", "SESSION_SECRET", "CRON_SECRET"]);
   const ok = Object.values(checks).every((v) => v.startsWith("ok")) && Object.values(requis).every(Boolean) && cle;
   return NextResponse.json({
     statut: ok ? "ok" : "attention",

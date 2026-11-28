@@ -9,17 +9,18 @@ declare global {
 }
 
 function client() {
-  const url = process.env.DATABASE_URL;
+  // Exécution du site : connexion « session » du pooler si elle est configurée (DATABASE_URL_DIRECT). Le pooler « transaction »
+  // bloque indéfiniment les requêtes sans paramètres envoyées en parallèle (constaté en production) ; la connexion session les accepte toutes.
+  const url = process.env.DATABASE_URL_DIRECT || process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL n'est pas configurée");
   if (!globalThis.__dlalSql) {
-    // Hébergement serverless + pooler de base partagé : peu de connexions par instance, jamais conservées à vide.
-    // (Des connexions gardées ouvertes par chaque instance saturent le pooler : les requêtes simultanées se bloquent alors indéfiniment.)
     const serverless = Boolean(process.env.VERCEL);
+    const transactionMode = !process.env.DATABASE_URL_DIRECT && /:6543\b/.test(url);
     globalThis.__dlalSql = postgres(url, {
-      max: Number(process.env.DATABASE_POOL_SIZE ?? (serverless ? 1 : 5)),
-      prepare: process.env.DATABASE_PREPARE !== "false", // false avec le pooler Supabase (mode transaction)
+      max: Number(process.env.DATABASE_POOL_SIZE ?? (serverless ? 3 : 5)),
+      prepare: transactionMode ? false : process.env.DATABASE_PREPARE !== "false", // pooler transaction : pas de requêtes préparées
       ssl: url.includes("localhost") || url.includes("127.0.0.1") ? false : "require",
-      idle_timeout: serverless ? 5 : 30,   // referme une connexion inutilisée après quelques secondes
+      idle_timeout: serverless ? 5 : 30,   // referme une connexion inutilisée après quelques secondes (libère le pooler)
       max_lifetime: 60 * 10,               // renouvelle les connexions anciennes
       connect_timeout: 10,                 // échoue vite plutôt que d'attendre indéfiniment
     });
