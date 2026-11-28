@@ -38,7 +38,8 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       es.addEventListener("change", refresh);
       es.addEventListener("error", () => { setStatus("secours"); startFallback(); });
     };
-    connect();
+    // Le flux temps réel démarre un peu après l'affichage : il ne doit jamais ralentir le premier chargement
+    const startTimer = setTimeout(connect, 2500);
     const onVisible = () => {
       if (document.visibilityState === "visible") {
         router.refresh();
@@ -49,7 +50,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener("online", onVisible);
     // Filet de sécurité : actualisation lente tant que l'onglet est visible
     const safety = setInterval(() => { if (document.visibilityState === "visible") router.refresh(); }, 60_000);
-    return () => { es?.close(); stopFallback(); clearInterval(safety); if (timer.current) clearTimeout(timer.current); if (second) clearTimeout(second); document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("online", onVisible); };
+    return () => { clearTimeout(startTimer); es?.close(); stopFallback(); clearInterval(safety); if (timer.current) clearTimeout(timer.current); if (second) clearTimeout(second); document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("online", onVisible); };
   }, [router]);
 
   return <Ctx.Provider value={status}>{children}</Ctx.Provider>;
