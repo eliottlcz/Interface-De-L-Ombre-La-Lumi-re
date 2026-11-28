@@ -104,3 +104,9 @@ Safari refuse les cookies sécurisés en `http://localhost` : utilisez Chrome/Fi
 1. Supabase : créer le projet, relever la chaîne **Transaction pooler** (`DATABASE_URL`, avec `DATABASE_PREPARE=false`) et la chaîne **Session pooler** (port 5432, compatible IPv4) pour `DATABASE_URL_DIRECT`.
 2. Vercel : importer le dépôt (branche de production), saisir les variables de `.env.example`. Le déploiement applique tout seul les migrations (`vercel-build`).
 3. Ouvrir une fois, dans Safari : `APP_URL/api/amorcage?cle=<CRON_SECRET>&eliott=<mail>&arthur=<mail>` → affiche les deux liens d'invitation. Cette adresse est refusée sans la clé, et se désactive dès qu'un compte existe.
+
+## 11. Diagnostic en cas de problème
+
+- `APP_URL/api/sante` : configuration complète ? base joignable ? (aucune valeur secrète)
+- `APP_URL/diagnostic` : page de test à lancer depuis l'appareil concerné (chronomètre les étapes de chargement).
+- Les erreurs serveur sont enregistrées dans la table `server_errors` (page, message, cause) : à consulter dans l'éditeur SQL de Supabase (`select * from server_errors order by id desc limit 20;`).
