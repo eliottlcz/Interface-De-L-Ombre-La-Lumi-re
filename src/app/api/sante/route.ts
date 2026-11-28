@@ -39,6 +39,15 @@ export async function GET(req: NextRequest) {
     await mesure("abonnes", () => crossPlatform("abonnes"));
     await mesure("vues", () => crossPlatform("vues"));
   }
+  if (req.nextUrl.searchParams.get("logins") === "1") {
+    // Décompte anonyme des connexions de la dernière heure (sans adresse, sans identité) : le serveur a-t-il reçu et traité les tentatives ?
+    try {
+      const rows = await db.execute(sql.raw(`select success, coalesce(reason,'') as reason, round(extract(epoch from (now()-created_at))/60)::int as il_y_a_min from login_events where created_at > now() - interval '60 minutes' order by created_at desc limit 12`));
+      out.connexions_derniere_heure = JSON.stringify((rows as unknown as { success: boolean; reason: string; il_y_a_min: number }[]).map((r) => `${r.success ? "réussie" : "échec" + (r.reason ? ":" + r.reason : "")} il y a ${r.il_y_a_min} min`));
+      const ss = await db.execute(sql.raw(`select count(*)::int as n from sessions where created_at > now() - interval '60 minutes'`));
+      out.sessions_creees_derniere_heure = String((ss as unknown as { n: number }[])[0].n);
+    } catch (e) { out.connexions_derniere_heure = `ERREUR ${(e as Error).message.slice(0, 120)}`; }
+  }
   if (req.nextUrl.searchParams.get("argon") === "1") {
     try {
       const t1 = Date.now(); const h = await hashPassword("diagnostic-Argon2-12345"); out.argon_hachage = `ok ${Date.now() - t1} ms`;
