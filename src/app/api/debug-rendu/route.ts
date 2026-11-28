@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
 import { and, desc, eq, isNull, ne, sql } from "drizzle-orm";
 import { db, schema as s } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -42,24 +40,13 @@ export async function GET() {
     db.select({ id: s.episodes.id }).from(s.episodes), db.select().from(s.ideas).limit(2),
   ]));
   await etape("layout_et_accueil_ensemble", () => Promise.all([countUrgent(user), getReminders(user), loadTasks(), internalCounts(), crossPlatform("abonnes"), crossPlatform("vues")]));
-  // Comparaison de configurations, avec la couche d'accès réelle (Drizzle), requêtes avec et sans paramètres
-  const essais: [string, string | undefined, Record<string, unknown>][] = [
-    ["cfg_transaction_1", process.env.DATABASE_URL, { max: 1, prepare: false }],
-    ["cfg_transaction_5", process.env.DATABASE_URL, { max: 5, prepare: false }],
-    ["cfg_session_1", process.env.DATABASE_URL_DIRECT, { max: 1 }],
-    ["cfg_session_3", process.env.DATABASE_URL_DIRECT, { max: 3 }],
-  ];
-  await Promise.all(essais.flatMap(([nom, url, opt]) => ["sans_param", "avec_param"].map(async (mode) => {
-    const cle = `${nom}_${mode}`;
-    if (!url) { out[cle] = "URL absente"; return; }
-    const c = postgres(url, { ssl: "require", connect_timeout: 8, idle_timeout: 3, ...opt });
-    const d = drizzle(c);
-    const t = Date.now();
-    try {
-      await Promise.race([Promise.all(Array.from({ length: 8 }, () => mode === "sans_param" ? d.execute(sql`select pg_sleep(0.05)`) : d.select({ id: s.users.id }).from(s.users).where(eq(s.users.id, user.id)))), new Promise((_, r) => setTimeout(() => r(new Error("bloquée > 8 s")), 8000))]);
-      out[cle] = `ok ${Date.now() - t} ms`;
-    } catch (e) { out[cle] = `ERREUR ${(e as Error).message.slice(0, 90)} (${Date.now() - t} ms)`; }
-    finally { c.end({ timeout: 1 }).catch(() => {}); }
-  })));
+  try {
+    const rows = await db.execute(sql`select to_char(created_at at time zone 'Europe/Paris', 'HH24:MI:SS') as h, method, path, message, digest, left(stack, 700) as stack from server_errors order by id desc limit 8`);
+    out.erreurs_serveur_recentes = JSON.stringify(rows);
+  } catch (e) { out.erreurs_serveur_recentes = "table absente : " + (e as Error).message.slice(0, 80); }
+  try {
+    const c = await db.execute(sql`select count(*)::int as n, coalesce(state,'?') as etat from pg_stat_activity where datname = current_database() group by state`);
+    out.connexions_ouvertes = JSON.stringify(c);
+  } catch (e) { out.connexions_ouvertes = "illisible : " + (e as Error).message.slice(0, 80); }
   return NextResponse.json(out, { headers: { "Cache-Control": "no-store" } });
 }
