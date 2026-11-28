@@ -36,6 +36,13 @@
       "when": 1795810000000,
       "tag": "0004_erreurs_serveur",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795820000000,
+      "tag": "0005_synchro_utilisateurs",
+      "breakpoints": true
     }
   ]
 }

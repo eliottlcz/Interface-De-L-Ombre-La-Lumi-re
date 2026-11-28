@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type Status = "connecte" | "connexion" | "secours";
 const Ctx = createContext<Status>("connexion");
@@ -16,8 +16,11 @@ const POLL_MS = 4000;
  */
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [status, setStatus] = useState<Status>("connexion");
   const last = useRef<string | null>(null);
+  const navAt = useRef(Date.now()); // instant du dernier changement de page : pas de rafraîchissement forcé pendant le chargement
+  useEffect(() => { navAt.current = Date.now(); }, [pathname]);
 
   useEffect(() => {
     let stopped = false;
@@ -29,8 +32,9 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
     // Rafraîchissement rapide, puis un second de rattrapage (une lecture lancée avant la fin des écritures de l'auteur pourrait être périmée)
     const refresh = () => {
       if (t1) clearTimeout(t1); if (t2) clearTimeout(t2);
-      t1 = setTimeout(() => router.refresh(), 250);
-      t2 = setTimeout(() => router.refresh(), 1800);
+      const go = () => { const wait = 3000 - (Date.now() - navAt.current); if (wait > 0) setTimeout(() => router.refresh(), wait); else router.refresh(); };
+      t1 = setTimeout(go, 250);
+      t2 = setTimeout(go, 1800);
     };
 
     const poll = async () => {
