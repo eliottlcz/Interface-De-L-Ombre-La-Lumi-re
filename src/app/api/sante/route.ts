@@ -20,6 +20,8 @@ export async function GET(req: NextRequest) {
     ["journal", "select id from audit_log limit 1"],
     ["episodes", "select id from episodes limit 1"],
     ["contacts", "select id from contacts limit 1"],
+    ["compteur_synchro", "select last_value from dlal_change_seq"],
+    ["sessions", "select id from sessions limit 1"],
   ] as const) {
     const t = Date.now();
     try { await db.execute(sql.raw(requete)); out[nom] = `ok ${Date.now() - t} ms`; }
