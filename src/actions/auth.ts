@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { db, schema } from "@/lib/db";
 import { createSession, destroySession, clientInfo, getCurrentUser } from "@/lib/auth/session";
 import { hashPassword, passwordProblem, verifyPassword } from "@/lib/auth/password";
+import { attemptLogin } from "@/lib/auth/login";
 import { randomToken, sha256 } from "@/lib/crypto";
 import { audit } from "@/lib/audit";
 import { appUrl, mailLayout, sendMail } from "@/lib/mail";
@@ -21,30 +22,8 @@ const MAX_FAILS_IP = 25;
 const WINDOW_MIN = 15;
 
 export async function loginAction(_: FormState, form: FormData): Promise<FormState> {
-  const email = String(form.get("email") ?? "").trim().toLowerCase();
-  const password = String(form.get("password") ?? "");
-  if (!email || !password) return fail("Renseignez votre e-mail et votre mot de passe.", form, ["email"]);
-  const { ip, userAgent } = await clientInfo();
-  const since = new Date(Date.now() - WINDOW_MIN * 60_000);
-
-  const [{ n: failsEmail }] = await db.select({ n: sql<number>`count(*)::int` }).from(schema.loginEvents)
-    .where(and(eq(schema.loginEvents.email, email), eq(schema.loginEvents.success, false), gte(schema.loginEvents.createdAt, since)));
-  const [{ n: failsIp }] = ip ? await db.select({ n: sql<number>`count(*)::int` }).from(schema.loginEvents)
-    .where(and(eq(schema.loginEvents.ip, ip), eq(schema.loginEvents.success, false), gte(schema.loginEvents.createdAt, since))) : [{ n: 0 }];
-  if (failsEmail >= MAX_FAILS_EMAIL || failsIp >= MAX_FAILS_IP) {
-    await db.insert(schema.loginEvents).values({ email, success: false, ip, userAgent, reason: "bloque_trop_de_tentatives" });
-    return fail(`Trop de tentatives. Réessayez dans ${WINDOW_MIN} minutes.`, form, ["email"]);
-  }
-
-  const [user] = await db.select().from(schema.users).where(sql`lower(${schema.users.email}) = ${email}`).limit(1);
-  const ok = user?.passwordHash ? await verifyPassword(user.passwordHash, password) : false;
-  if (!user || !ok || !user.active) {
-    await db.insert(schema.loginEvents).values({ email, userId: user?.id, success: false, ip, userAgent, reason: !user ? "inconnu" : !user.active ? "desactive" : "mot_de_passe" });
-    return fail("Identifiants incorrects — la porte du QG reste fermée.", form, ["email"]);
-  }
-  await db.insert(schema.loginEvents).values({ email, userId: user.id, success: true, ip, userAgent });
-  await db.update(schema.users).set({ lastLoginAt: new Date() }).where(eq(schema.users.id, user.id));
-  await createSession(user.id);
+  const r = await attemptLogin(String(form.get("email") ?? ""), String(form.get("password") ?? ""));
+  if (!r.ok) return fail(r.error, form, ["email"]);
   const next = String(form.get("next") ?? "/");
   redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/");
 }

@@ -6,51 +6,70 @@ type Status = "connecte" | "connexion" | "secours";
 const Ctx = createContext<Status>("connexion");
 export const useSyncStatus = () => useContext(Ctx);
 
+const POLL_MS = 4000;
+
 /**
- * Synchronisation entre appareils :
- *  1. flux temps réel (SSE) → rafraîchit les données ~instantanément après toute modification ;
- *  2. retour sur l'onglet / l'app → rafraîchissement immédiat ;
- *  3. secours : si le flux est indisponible, rafraîchissement toutes les 30 s.
+ * Synchronisation entre appareils, sans connexion permanente :
+ *  - toutes les 4 s (onglet visible), l'appareil lit un compteur de modifications ; s'il a changé, les données sont rafraîchies ;
+ *  - au retour sur l'onglet, à la reconnexion du réseau et au démarrage : vérification immédiate ;
+ *  - si le serveur ne répond pas, l'indicateur passe en « liaison de secours » et la vérification continue.
  */
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>("connexion");
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const last = useRef<string | null>(null);
 
   useEffect(() => {
-    // Chaque événement planifie un rafraîchissement rapide, puis un second de rattrapage :
-    // un rafraîchissement lancé avant la fin des écritures de l'auteur pourrait sinon laisser des données périmées.
-    let second: ReturnType<typeof setTimeout> | null = null;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let busy = false;
+    let t1: ReturnType<typeof setTimeout> | null = null;
+    let t2: ReturnType<typeof setTimeout> | null = null;
+
+    // Rafraîchissement rapide, puis un second de rattrapage (une lecture lancée avant la fin des écritures de l'auteur pourrait être périmée)
     const refresh = () => {
-      if (timer.current) clearTimeout(timer.current);
-      if (second) clearTimeout(second);
-      timer.current = setTimeout(() => router.refresh(), 350);
-      second = setTimeout(() => router.refresh(), 1800);
+      if (t1) clearTimeout(t1); if (t2) clearTimeout(t2);
+      t1 = setTimeout(() => router.refresh(), 250);
+      t2 = setTimeout(() => router.refresh(), 1800);
     };
-    let es: EventSource | null = null;
-    let fallback: ReturnType<typeof setInterval> | null = null;
-    const startFallback = () => { if (!fallback) fallback = setInterval(() => { if (document.visibilityState === "visible") router.refresh(); }, 30_000); };
-    const stopFallback = () => { if (fallback) { clearInterval(fallback); fallback = null; } };
-    const connect = () => {
-      es?.close();
-      es = new EventSource("/api/realtime");
-      es.addEventListener("ready", () => { setStatus("connecte"); stopFallback(); refresh(); }); // rattrape toute modification survenue avant/pendant la (re)connexion
-      es.addEventListener("change", refresh);
-      es.addEventListener("error", () => { setStatus("secours"); startFallback(); });
+
+    const poll = async () => {
+      if (stopped || busy) return;
+      busy = true;
+      try {
+        const c = new AbortController();
+        const to = setTimeout(() => c.abort(), 8000);
+        const r = await fetch("/api/sync", { cache: "no-store", credentials: "same-origin", signal: c.signal });
+        clearTimeout(to);
+        if (r.status === 401) { setStatus("secours"); router.refresh(); return; } // session expirée : la page redirigera vers la connexion
+        if (!r.ok) throw new Error(String(r.status));
+        const { v } = (await r.json()) as { v: string };
+        setStatus("connecte");
+        if (last.current !== null && v !== last.current) refresh();
+        last.current = v;
+      } catch { setStatus("secours"); }
+      finally { busy = false; }
     };
-    // Le flux temps réel démarre un peu après l'affichage : il ne doit jamais ralentir le premier chargement
-    const startTimer = setTimeout(connect, 2500);
-    const onVisible = () => {
-      if (document.visibilityState === "visible") {
-        router.refresh();
-        if (!es || es.readyState === EventSource.CLOSED) connect();
-      }
+
+    const loop = () => {
+      if (stopped) return;
+      if (document.visibilityState === "visible") void poll();
+      timer = setTimeout(loop, POLL_MS);
     };
+    const now = () => { if (timer) clearTimeout(timer); loop(); };
+    const onVisible = () => { if (document.visibilityState === "visible") { router.refresh(); now(); } };
+
+    now();
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("online", onVisible);
-    // Filet de sécurité : actualisation lente tant que l'onglet est visible
-    const safety = setInterval(() => { if (document.visibilityState === "visible") router.refresh(); }, 60_000);
-    return () => { clearTimeout(startTimer); es?.close(); stopFallback(); clearInterval(safety); if (timer.current) clearTimeout(timer.current); if (second) clearTimeout(second); document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("online", onVisible); };
+    window.addEventListener("focus", now);
+    return () => {
+      stopped = true;
+      if (timer) clearTimeout(timer); if (t1) clearTimeout(t1); if (t2) clearTimeout(t2);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("online", onVisible);
+      window.removeEventListener("focus", now);
+    };
   }, [router]);
 
   return <Ctx.Provider value={status}>{children}</Ctx.Provider>;
@@ -58,7 +77,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
 
 export function SyncDot() {
   const s = useSyncStatus();
-  const label = s === "connecte" ? "À l’antenne : synchronisé en temps réel avec les autres appareils" : s === "connexion" ? "Réglage du signal…" : "Liaison de secours : actualisation toutes les 30 s";
+  const label = s === "connecte" ? "À l’antenne : synchronisé avec les autres appareils" : s === "connexion" ? "Réglage du signal…" : "Liaison de secours : nouvelle tentative en cours";
   return (
     <span title={label} className="inline-flex items-center gap-1.5 text-[11px] text-muted">
       <span className={`size-2 rounded-full ${s === "connecte" ? "bg-ok" : s === "connexion" ? "bg-muted animate-pulse" : "bg-gold"}`} />

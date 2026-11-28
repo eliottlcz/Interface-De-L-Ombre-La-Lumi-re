@@ -23,7 +23,7 @@ test("pages privées : redirection vers la connexion sans session", async ({ pag
 });
 
 test("API privées : 401 sans session", async ({ request }) => {
-  for (const p of ["/api/export/contacts", "/api/sauvegarde", "/api/realtime", "/api/attachments/00000000-0000-0000-0000-000000000000"]) {
+  for (const p of ["/api/export/contacts", "/api/sauvegarde", "/api/attachments/00000000-0000-0000-0000-000000000000"]) {
     const r = await request.get(p, { maxRedirects: 0 });
     expect([401, 307].includes(r.status()), `${p} -> ${r.status()}`).toBeTruthy();
   }

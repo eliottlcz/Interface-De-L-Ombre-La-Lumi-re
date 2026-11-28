@@ -25,7 +25,7 @@ document.getElementById("go").onclick=async()=>{
   await test("3. Tableau de bord (page complète, avec votre session si connecté)","/");
   await test("4. Tableau de bord (données de navigation interne)","/",{headers:{RSC:"1"}});
   await test("5. Mes missions","/missions");
-  const li=line("6. Flux temps réel (5 s)");let ok=false;try{const es=new EventSource("/api/realtime");await new Promise(r=>{es.onopen=()=>{ok=true};es.addEventListener("ready",()=>{ok=true});setTimeout(r,5000)});es.close();done(li,ok,ok?"Connexion établie":"Pas de connexion en 5 s (normal si vous n'êtes pas connecté)")}catch(e){done(li,false,String(e))}
+  await test("6. Synchronisation (compteur de modifications)","/api/sync");
   const f=line("Fin du test");done(f,true,"Navigateur : "+navigator.userAgent.slice(0,90));
 };
 </script></body></html>`;

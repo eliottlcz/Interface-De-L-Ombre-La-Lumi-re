@@ -174,7 +174,7 @@ function Integrations({ integrations, perms, system }: Props) {
     { label: "Intelligence artificielle (idées du jour)", ok: system.ai, text: system.ai ? `Clé configurée · modèle ${system.aiModel}` : "ANTHROPIC_API_KEY absente : module en attente de configuration." },
     { label: "E-mails (invitations, réinitialisation)", ok: system.mail, text: system.mail ? "Resend configuré." : "RESEND_API_KEY / MAIL_FROM absents : les liens s'affichent pour être transmis à la main. Notifications par e-mail : option future." },
     { label: "Tâche quotidienne", ok: system.cron, text: system.cron ? "CRON_SECRET présent : rappels, idées et synchronisations chaque matin." : "CRON_SECRET absent : rien ne s'exécute automatiquement." },
-    { label: "Synchronisation temps réel", ok: true, text: system.directDb ? "Connexion directe dédiée (DATABASE_URL_DIRECT)." : "Utilise DATABASE_URL (prévoir DATABASE_URL_DIRECT avec un pooler Supabase)." },
+    { label: "Synchronisation temps réel", ok: true, text: "Vérification toutes les 4 secondes sur chaque appareil ouvert, sans connexion permanente." },
   ];
   return (
     <div className="flex flex-col gap-6">

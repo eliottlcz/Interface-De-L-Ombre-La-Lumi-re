@@ -11,7 +11,6 @@ import { SyncDot } from "./realtime";
 import { GlobalSearch } from "./search";
 import { Avatar, IconButton } from "@/components/ui";
 import { timeAgo } from "@/lib/dates";
-import { logoutAction } from "@/actions/auth";
 import { markNotificationsRead } from "@/actions/notifications";
 import type { Permission } from "@/lib/auth/permissions";
 
@@ -116,7 +115,7 @@ export function AppShell({ user, urgentCount, notifications, unread, children }:
                     <div className="text-xs capitalize text-muted">{user.role}</div>
                   </div>
                   <Link href="/parametres" className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-panel-2"><Settings className="size-4" />Paramètres</Link>
-                  <form action={logoutAction}><button className="flex w-full items-center gap-2 px-4 py-3 text-sm text-alert hover:bg-panel-2"><LogOut className="size-4" />Se déconnecter</button></form>
+                  <form method="post" action="/api/deconnexion"><button className="flex w-full items-center gap-2 px-4 py-3 text-sm text-alert hover:bg-panel-2"><LogOut className="size-4" />Se déconnecter</button></form>
                 </Dropdown>
               )}
             </div>
