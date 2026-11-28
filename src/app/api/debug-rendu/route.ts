@@ -28,5 +28,17 @@ export async function GET() {
   await etape("abonnes", () => crossPlatform("abonnes"));
   await etape("journal", () => db.select({ a: s.auditLog, name: s.users.name }).from(s.auditLog).innerJoin(s.users, eq(s.users.id, s.auditLog.userId)).where(and(ne(s.auditLog.userId, user.id), eq(s.auditLog.sensitive, false))).orderBy(desc(s.auditLog.createdAt)).limit(8));
   await etape("episodes", () => db.select({ id: s.episodes.id }).from(s.episodes));
+  await etape("concurrence_8_requetes", () => Promise.all(Array.from({ length: 8 }, () => db.execute(sql`select pg_sleep(0.05)`))));
+  await etape("concurrence_20_requetes", () => Promise.all(Array.from({ length: 20 }, () => db.execute(sql`select pg_sleep(0.02)`))));
+  await etape("layout_en_parallele", () => Promise.all([
+    db.select().from(s.notifications).where(eq(s.notifications.userId, user.id)).orderBy(desc(s.notifications.createdAt)).limit(20),
+    db.select({ n: sql<number>`count(*)::int` }).from(s.notifications).where(and(eq(s.notifications.userId, user.id), isNull(s.notifications.readAt))),
+    countUrgent(user),
+  ]));
+  await etape("accueil_en_parallele", () => Promise.all([
+    getReminders(user), loadTasks(and(eq(s.tasks.assigneeId, user.id), ne(s.tasks.status, "termine"))), internalCounts(), crossPlatform("abonnes"), crossPlatform("vues"),
+    db.select({ id: s.episodes.id }).from(s.episodes), db.select().from(s.ideas).limit(2),
+  ]));
+  await etape("layout_et_accueil_ensemble", () => Promise.all([countUrgent(user), getReminders(user), loadTasks(), internalCounts(), crossPlatform("abonnes"), crossPlatform("vues")]));
   return NextResponse.json(out, { headers: { "Cache-Control": "no-store" } });
 }
