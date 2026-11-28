@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { and, desc, eq, isNull, ne, sql } from "drizzle-orm";
 import { db, schema as s } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -41,21 +42,24 @@ export async function GET() {
     db.select({ id: s.episodes.id }).from(s.episodes), db.select().from(s.ideas).limit(2),
   ]));
   await etape("layout_et_accueil_ensemble", () => Promise.all([countUrgent(user), getReminders(user), loadTasks(), internalCounts(), crossPlatform("abonnes"), crossPlatform("vues")]));
-  // Comparaison de configurations de connexion (chacune avec 8 requêtes simultanées, 8 s maximum)
+  // Comparaison de configurations, avec la couche d'accès réelle (Drizzle), requêtes avec et sans paramètres
   const essais: [string, string | undefined, Record<string, unknown>][] = [
-    ["cfg_pooler_transaction_defaut", process.env.DATABASE_URL, { max: 1, prepare: false }],
-    ["cfg_pooler_transaction_sans_pipeline", process.env.DATABASE_URL, { max: 1, prepare: false, max_pipeline: 1 }],
-    ["cfg_pooler_transaction_5_connexions", process.env.DATABASE_URL, { max: 5, prepare: false }],
-    ["cfg_pooler_session_defaut", process.env.DATABASE_URL_DIRECT, { max: 1 }],
-    ["cfg_pooler_session_sans_pipeline", process.env.DATABASE_URL_DIRECT, { max: 1, max_pipeline: 1 }],
+    ["cfg_transaction_1", process.env.DATABASE_URL, { max: 1, prepare: false }],
+    ["cfg_transaction_5", process.env.DATABASE_URL, { max: 5, prepare: false }],
+    ["cfg_session_1", process.env.DATABASE_URL_DIRECT, { max: 1 }],
+    ["cfg_session_3", process.env.DATABASE_URL_DIRECT, { max: 3 }],
   ];
-  await Promise.all(essais.map(async ([nom, url, opt]) => {
-    if (!url) { out[nom] = "URL absente"; return; }
+  await Promise.all(essais.flatMap(([nom, url, opt]) => ["sans_param", "avec_param"].map(async (mode) => {
+    const cle = `${nom}_${mode}`;
+    if (!url) { out[cle] = "URL absente"; return; }
     const c = postgres(url, { ssl: "require", connect_timeout: 8, idle_timeout: 3, ...opt });
+    const d = drizzle(c);
     const t = Date.now();
-    try { await Promise.race([Promise.all(Array.from({ length: 8 }, () => c`select pg_sleep(0.05)`)), new Promise((_, r) => setTimeout(() => r(new Error("bloquée > 8 s")), 8000))]); out[nom] = `ok ${Date.now() - t} ms`; }
-    catch (e) { out[nom] = `ERREUR ${(e as Error).message.slice(0, 100)} (${Date.now() - t} ms)`; }
+    try {
+      await Promise.race([Promise.all(Array.from({ length: 8 }, () => mode === "sans_param" ? d.execute(sql`select pg_sleep(0.05)`) : d.select({ id: s.users.id }).from(s.users).where(eq(s.users.id, user.id)))), new Promise((_, r) => setTimeout(() => r(new Error("bloquée > 8 s")), 8000))]);
+      out[cle] = `ok ${Date.now() - t} ms`;
+    } catch (e) { out[cle] = `ERREUR ${(e as Error).message.slice(0, 90)} (${Date.now() - t} ms)`; }
     finally { c.end({ timeout: 1 }).catch(() => {}); }
-  }));
+  })));
   return NextResponse.json(out, { headers: { "Cache-Control": "no-store" } });
 }
