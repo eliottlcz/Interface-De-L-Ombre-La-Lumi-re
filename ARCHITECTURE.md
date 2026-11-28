@@ -28,9 +28,14 @@ Navigateur (PWA)  ──►  Next.js (Vercel ou Node)  ──►  PostgreSQL (Su
 | Exports | CSV/Excel : neutralisation de l'injection de formules ; réservés aux personnes autorisées |
 | En-têtes | CSP, X-Frame-Options, Referrer-Policy… (`next.config.ts`) ; contrôle d'origine des actions serveur |
 
-## Temps réel
+## Synchronisation entre appareils
 
-Chaque modification déclenche `pg_notify('dlal_changes', …)`. `/api/realtime` (SSE) relaie vers les navigateurs connectés, qui appellent `router.refresh()` (anti-rebond 350 ms, second rattrapage à 1,8 s). Au (re)connexion le client se resynchronise ; si le flux tombe, une actualisation toutes les 30 s prend le relais (voyant « Liaison de secours »). Filet supplémentaire : 60 s tant que l'onglet est visible, et à chaque retour sur l'onglet.
+Chaque modification de donnée incrémente un compteur en base (séquence `dlal_change_seq`, via les déclencheurs de la migration 0003). Chaque appareil ouvert consulte `/api/sync` (réponse minuscule, réservée aux connectés) toutes les 4 secondes tant que l'onglet est visible ; si le compteur a changé, les données sont rafraîchies (puis une seconde fois 1,8 s plus tard par sécurité). Vérification immédiate au retour sur l'onglet et à la reprise du réseau. Si le serveur ne répond pas, l'indicateur passe à « Liaison de secours » et la consultation continue.
+Ce choix remplace un flux SSE permanent, inadapté à l'hébergement serverless (coût en temps de calcul, coupures sur réseaux publics, connexions de base immobilisées).
+
+## Connexion et sessions
+
+La connexion et la déconnexion sont des **formulaires HTML classiques** (`POST /api/connexion`, `POST /api/deconnexion`, réponse 303) : elles fonctionnent sans JavaScript et sur réseau dégradé, avec contrôle d'origine. La session est un jeton aléatoire haché en base, cookie `dlal_session` persistant 30 jours (HttpOnly, SameSite=Lax, Secure). Les erreurs reviennent par un cookie éphémère de 60 s (l'e-mail est conservé, jamais le mot de passe).
 
 ## Automatisations (`src/lib/automations.ts`)
 
@@ -50,7 +55,7 @@ Chaque connecteur est indépendant et affiche son état réel (`Non configuré` 
 ## Tests
 
 - `npm test` — 22 tests unitaires (`tests/`).
-- `npm run test:e2e` — 99 tests Playwright (`e2e/`) : authentification, droits, synchronisation à deux comptes, CRM, production, calendrier/finances, statistiques/idées/ressources, 4 formats d'écran, sécurité (chiffrement vérifié en base, rejeu d'actions interdites, XSS/SQL, cookies, administration, sauvegarde → restauration).
+- `npm run test:e2e` — 110 tests Playwright (dont la suite 10 : robustesse — sans JavaScript, réseau lent, coupure et reprise, fermeture du navigateur, deux appareils) (`e2e/`) : authentification, droits, synchronisation à deux comptes, CRM, production, calendrier/finances, statistiques/idées/ressources, 4 formats d'écran, sécurité (chiffrement vérifié en base, rejeu d'actions interdites, XSS/SQL, cookies, administration, sauvegarde → restauration).
   Préparation : `bash scripts/e2e-reset.sh` (base `dlal_verif` jetable, comptes d'essai, serveur de production sur le port 3100), puis `set -a; . ./.env.verif; set +a; npx playwright test --trace off`. Ne jamais pointer ces tests vers la base de production.
 
 ## Responsive

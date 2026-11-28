@@ -28,7 +28,9 @@ openssl rand -base64 32   # CRON_SECRET
 3. Déployer. Le fichier `vercel.json` planifie `/api/cron/quotidien` chaque jour ; Vercel envoie automatiquement `Authorization: Bearer <CRON_SECRET>`.
 4. Domaine personnalisé conseillé (HTTPS obligatoire : le cookie de session est `Secure`).
 
-**Temps réel sur Vercel** : le flux SSE est limité à 60 s par connexion ; le navigateur se reconnecte et se resynchronise automatiquement (aucune perte). Pour un flux continu, hébergez sur un serveur Node classique (`npm run build && npm start`) derrière un proxy qui n'impose pas de coupure aux flux HTTP.
+**Région** : `vercel.json` place les fonctions à Francfort (`fra1`), à côté de la base Supabase (région Europe centrale). Une région éloignée multiplierait la latence de chaque requête.
+**Synchronisation** : par consultation légère toutes les 4 s (aucune connexion permanente), donc sans surcoût sur l'offre gratuite.
+**Contrôle de santé** : `APP_URL/api/sante` indique si la configuration est complète et si la base répond (aucune valeur secrète).
 
 ## 4. Création des comptes
 

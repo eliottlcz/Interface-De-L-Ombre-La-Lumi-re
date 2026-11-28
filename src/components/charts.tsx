@@ -72,7 +72,7 @@ export function BarsChart({ title, subtitle, data, xKey, series, format = (n) =>
         <BarChart data={data} barGap={2} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} stroke={GRID} />
           <XAxis dataKey={xKey} {...axisProps} />
-          <YAxis {...axisProps} width={56} tickFormatter={(v) => format(v)} />
+          <YAxis {...axisProps} width={72} tickFormatter={(v) => format(v)} />
           <Tooltip cursor={{ fill: "rgba(223,198,98,0.06)" }} content={<Tip format={format} series={series} />} />
           {series.map((s, i) => <Bar key={s.key} dataKey={s.key} fill={SERIES[i]} radius={[4, 4, 0, 0]} maxBarSize={28} />)}
         </BarChart>
@@ -87,8 +87,8 @@ export function LinesChart({ title, subtitle, data, xKey, series, format = (n) =
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} stroke={GRID} />
-          <XAxis dataKey={xKey} {...axisProps} minTickGap={24} />
-          <YAxis {...axisProps} width={56} tickFormatter={(v) => format(v)} domain={["auto", "auto"]} />
+          <XAxis dataKey={xKey} {...axisProps} minTickGap={40} tickFormatter={(v, i) => (i > 0 && String((data[i - 1] as Record<string, unknown>)?.[xKey]) === String(v) ? "" : String(v))} />
+          <YAxis {...axisProps} width={72} tickFormatter={(v) => format(v)} domain={["auto", "auto"]} />
           <Tooltip cursor={{ stroke: "#3a362b" }} content={<Tip format={format} series={series} />} />
           {series.map((s, i) => <Line key={s.key} dataKey={s.key} stroke={SERIES[i]} strokeWidth={2} dot={data.length < 20 ? { r: 3, fill: SERIES[i], strokeWidth: 2, stroke: "#12110d" } : false} activeDot={{ r: 5, stroke: "#12110d", strokeWidth: 2 }} connectNulls />)}
         </LineChart>
