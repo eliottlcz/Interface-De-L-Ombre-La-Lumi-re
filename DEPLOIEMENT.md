@@ -77,6 +77,11 @@ Un test automatique vérifie la chaîne complète : sauvegarde téléchargée �
 - Journal : *Paramètres → Journal & sécurité* (administrateurs) ; il est immuable.
 - Changer `VAULT_MASTER_KEY` rend illisibles les secrets existants : ne le faites pas sans les avoir ré-enregistrés.
 
+## 7 bis. Incident connu : pages qui ne se chargent jamais
+
+Symptôme : la connexion réussit mais toutes les pages privées restent bloquées. Cause : des connexions à la base laissées ouvertes par chaque instance saturent le pooler partagé de Supabase ; les requêtes **simultanées** (une page en lance plusieurs) attendent alors indéfiniment, alors que les requêtes isolées passent.
+Prévention (déjà dans le code, `src/lib/db/index.ts`) : une seule connexion par instance serverless, fermée après 5 s d'inactivité, délai de connexion de 10 s. Ne pas augmenter `DATABASE_POOL_SIZE` sur l'offre gratuite. Contrôle : `APP_URL/api/sante`.
+
 ## 8. Ce qui reste à valider chez vous
 
 Ces points dépendent de comptes que seul le propriétaire peut créer ; ils n'ont donc **pas** pu être testés en conditions réelles :
